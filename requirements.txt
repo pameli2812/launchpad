@@ -95,4 +95,5 @@ weasel==1.0.0
 websockets==16.0
 wrapt==2.1.2
 anthropic>=0.40.0
-
+python-dateutil>=2.9.0.post0
+pymupdf>=1.18.0
