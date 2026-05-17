@@ -1,0 +1,1 @@
+"""Analyse page module."""
