@@ -1,3 +1,6 @@
+# setup.py
+
+
 """Setup tab - Resume upload and goal management."""
 
 import streamlit as st
@@ -136,6 +139,48 @@ def render_setup_tab():
     if "resume_library_loaded" not in st.session_state:
         _load_resume_library_from_disk()
         st.session_state.resume_library_loaded = True
+
+    # Style ONLY the active goal button
+    st.markdown(
+        """
+        <script>
+        (function () {
+
+            function styleActiveButtons() {
+
+                document.querySelectorAll('button').forEach(function(btn) {
+
+                    const text = (btn.innerText || btn.textContent || '').trim();
+
+                    if (text === '✓ Active') {
+
+                        btn.style.background = '#16a34a';
+                        btn.style.border = '1px solid #16a34a';
+                        btn.style.color = '#ffffff';
+                        btn.style.boxShadow = 'none';
+
+                    }
+
+                });
+
+            }
+
+            styleActiveButtons();
+
+            const observer = new MutationObserver(function() {
+                setTimeout(styleActiveButtons, 50);
+            });
+
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true
+            });
+
+        })();
+        </script>
+        """,
+        unsafe_allow_html=True,
+    )
 
     # ── Section 1: Upload Resume ───────────────────────────────
     st.header("Step 1: Upload Resume")
@@ -333,80 +378,38 @@ def render_setup_tab():
                 + ("..." if len(goal_set.goals) > 3 else "")
             )
 
-    # Add CSS and JavaScript to style active buttons
-    st.markdown(
-        """
-        <style>
-        .active-goal-button {
-            background-color: #16a34a !important;
-            color: #ffffff !important;
-        }
-        .active-goal-button:hover {
-            background-color: #15803d !important;
-        }
-        
-        /* Ensure file uploader button stays visible */
-        [data-testid="stFileUploaderDropzone"] {
-            background-color: #f3f4f6 !important;
-        }
-        [data-testid="stFileUploaderDropzone"] button,
-        [data-testid="stFileUploaderDropzone"] svg {
-            color: #374151 !important;
-            background-color: #e5e7eb !important;
-        }
-        </style>
-        <script>
-        (function() {
-            function styleActiveButtons() {
-                document.querySelectorAll('button').forEach(function(btn) {
-                    const text = (btn.innerText || btn.textContent || '').trim();
-                    if (text.includes('Active') && !text.includes('Activate')) {
-                        btn.style.backgroundColor = '#16a34a';
-                        btn.style.color = '#ffffff';
-                    }
-                });
-            }
-            
-            styleActiveButtons();
-            
-            const observer = new MutationObserver(function() {
-                setTimeout(styleActiveButtons, 50);
-            });
-            observer.observe(document.body, { childList: true, subtree: true });
-        })();
-        </script>
-        """,
-        unsafe_allow_html=True,
-    )
-
-    for gs_id, goal_set in list(st.session_state.goal_sets.items()):
-        is_active = goal_set.is_active
-
-        col1, col2, col3, col4 = st.columns([4, 1, 1, 1])
-
-        with col1:
-            status_text = " — ACTIVE" if is_active else ""
-            status_color = "color:#16a34a" if is_active else "color:#64748b"
-            st.markdown(
-                f"**{goal_set.name}**"
-                f"<span style='{status_color}; font-size:0.82rem; font-weight:600;'>{status_text}</span>",
-                unsafe_allow_html=True,
-            )
-            st.caption(
-                f"{len(goal_set.goals)} goals: "
-                + ", ".join(g.label for g in goal_set.goals[:3])
-                + ("..." if len(goal_set.goals) > 3 else "")
-            )
-
         with col2:
-            if is_active:
-                if st.button("✓ Active", key=f"deact_{gs_id}", use_container_width=True, help="Click to deactivate"):
-                    _deactivate_goal_set(gs_id)
-                    st.rerun()
-            else:
-                if st.button("Activate", key=f"act_{gs_id}", use_container_width=True):
-                    _activate_goal_set(gs_id)
-                    st.rerun()
+            # if is_active:
+            #     if st.button("✓ Active", key=f"deact_{gs_id}", use_container_width=True, help="Click to deactivate"):
+            #         _deactivate_goal_set(gs_id)
+            #         st.rerun()
+            # else:
+            #     if st.button("Activate", key=f"act_{gs_id}", use_container_width=True):
+            #         _activate_goal_set(gs_id)
+            #         st.rerun()
+            with col2:
+
+                if is_active:
+
+                    if st.button(
+                        "✓ Active",
+                        key=f"deact_{gs_id}",
+                        use_container_width=True,
+                        help="Click to deactivate",
+                        type="primary",
+                    ):
+                        _deactivate_goal_set(gs_id)
+                        st.rerun()
+
+                else:
+
+                    if st.button(
+                        "Activate",
+                        key=f"act_{gs_id}",
+                        use_container_width=True,
+                    ):
+                        _activate_goal_set(gs_id)
+                        st.rerun()
 
         with col3:
             with st.expander("Goals"):
@@ -424,3 +427,4 @@ def render_setup_tab():
                 st.rerun()
 
         st.divider()
+
