@@ -515,18 +515,7 @@ def render_analyse_tab():
                                 st.session_state.history[-1].suggestions_generated_at = datetime.now()
                                 serialized = []
                                 for e in st.session_state.history:
-                                    entry_dict = {
-                                        "jd_title": e.jd_title, 
-                                        "company": e.company,
-                                        "goal_set_name": e.goal_set_name, 
-                                        "overall_fit": e.overall_fit,
-                                        "verdict": e.verdict, 
-                                        "status": e.status,
-                                        "analyzed_at": e.analyzed_at.isoformat(),
-                                    }
-                                    if hasattr(e, 'suggestions') and e.suggestions:
-                                        entry_dict["suggestions"] = e.suggestions
-                                    serialized.append(entry_dict)
+                                    serialized.append(e.to_dict())
                                 write_json(HISTORY_FILE, serialized)
                                 st.success("✅ Suggestions saved to history!")
             else:

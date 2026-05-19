@@ -129,6 +129,8 @@ class HistoryEntry:
     jd_title: str = ""
     company: str = ""
     url: Optional[str] = None
+    suggestions: Optional[Dict[str, Any]] = None
+    suggestions_generated_at: Optional[datetime] = None
 
     def __post_init__(self):
         if self.verify_attempts is None:
@@ -152,4 +154,6 @@ class HistoryEntry:
             "jd_title": self.jd_title,
             "company": self.company,
             "url": self.url,
+            "suggestions": self.suggestions,
+            "suggestions_generated_at": self.suggestions_generated_at.isoformat() if self.suggestions_generated_at else None,
         }
