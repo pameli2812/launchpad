@@ -1,0 +1,67 @@
+[
+    {
+        "jd_title": "Software Development Engineer",
+        "company": "XYZ Corporation",
+        "goal_set_name": "Director of product",
+        "overall_fit": 7.58,
+        "verdict": "borderline",
+        "status": "pending",
+        "analyzed_at": "2026-05-17T19:10:28.881126"
+    },
+    {
+        "jd_title": "Senior Product Manager",
+        "company": "Abnormal Security",
+        "goal_set_name": "Director of product",
+        "overall_fit": 8.1,
+        "verdict": "apply",
+        "status": "pending",
+        "analyzed_at": "2026-05-17T19:31:09.469449"
+    },
+    {
+        "jd_title": "Senior Product Manager",
+        "company": "Abnormal Security",
+        "goal_set_name": "Director of product",
+        "overall_fit": 5.0,
+        "verdict": "borderline",
+        "status": "pending",
+        "analyzed_at": "2026-05-19T12:10:53.890301"
+    },
+    {
+        "jd_title": "Senior Product Manager",
+        "company": "Abnormal Security",
+        "goal_set_name": "Director of product",
+        "overall_fit": 5.0,
+        "verdict": "borderline",
+        "status": "pending",
+        "analyzed_at": "2026-05-19T12:24:52.248167"
+    },
+    {
+        "jd_title": "Senior Product Manager",
+        "company": "Abnormal Security",
+        "goal_set_name": "Director of product",
+        "overall_fit": 3.2,
+        "verdict": "skip",
+        "status": "pending",
+        "analyzed_at": "2026-05-19T12:58:25.035009",
+        "suggestions": {
+            "override_context": null,
+            "paraphrasing": [
+                {
+                    "section": "Work Experience",
+                    "original": "Product Manager - XYZ Company (20XX-Present)",
+                    "improved": "Senior Technical Product Manager - XYZ Company (20XX-Present) — Focus on your technical PM responsibilities, particularly those related to hard infrastructure problems.",
+                    "reason": "The JD specifies the need for a 'technical PM' with experience solving complex infrastructure issues.",
+                    "impact": "high"
+                }
+            ],
+            "missing": [
+                {
+                    "section": "Work Experience",
+                    "what_to_add": "Examples of problem-solving within hard infrastructure problems at previous roles (e.g., optimizing cloud architecture, improving data management systems, etc.).",
+                    "why_it_matters": "The JD mentions the need for experience with complex infrastructure issues.",
+                    "jd_reference": "key_requirements: [\"experience with hard infrastructure problems\"]"
+                }
+            ]
+        }
+    }
+]

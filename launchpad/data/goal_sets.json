@@ -1,0 +1,103 @@
+{
+    "active_goal_set_id": "ddaa91d1",
+    "goal_sets": [
+        {
+            "id": "ddaa91d1",
+            "name": "Director of product",
+            "created_at": "2026-05-17T12:00:05.740088",
+            "is_active": true,
+            "goals": [
+                {
+                    "id": "goal_1",
+                    "label": "product",
+                    "description": "test",
+                    "auto_inferred": false
+                }
+            ]
+        },
+        {
+            "id": "c14ef3e6",
+            "name": "Director of product",
+            "created_at": "2026-05-17T12:00:39.777824",
+            "is_active": false,
+            "goals": [
+                {
+                    "id": "goal_1",
+                    "label": "product",
+                    "description": "test",
+                    "auto_inferred": false
+                },
+                {
+                    "id": "goal_2",
+                    "label": "senior product manager",
+                    "description": "test",
+                    "auto_inferred": false
+                }
+            ]
+        },
+        {
+            "id": "25f36dfa",
+            "name": "International Roles",
+            "created_at": "2026-05-17T19:27:48.633369",
+            "is_active": false,
+            "goals": [
+                {
+                    "id": "goal_d_0",
+                    "label": "Director-level Product Leader in AI-driven Transformations",
+                    "description": "Leading AI transformations across B2B SaaS, FinTech, and enterprise analytics.",
+                    "auto_inferred": true
+                },
+                {
+                    "id": "goal_d_1",
+                    "label": "Product Management at Contify",
+                    "description": "Current role leading a cross-functional team in a competitive intelligence platform with $3M ARR, focusing on GenAI, Newsfeed, Dashboards, APIs, and Enterprise Integrations.",
+                    "auto_inferred": true
+                },
+                {
+                    "id": "goal_d_2",
+                    "label": "Leading Product Development in FinTech",
+                    "description": "Led the launch of Kelp Global, a fin-tech startup offering B2B SaaS that streamlines the private equity investment lifecycle.",
+                    "auto_inferred": true
+                },
+                {
+                    "id": "goal_d_3",
+                    "label": "AI-driven Analytics for Marketing Campaigns",
+                    "description": "Specialized in enhancing marketing campaigns performance for banks, focusing on personalized recommendations and multi-class classification models.",
+                    "auto_inferred": true
+                },
+                {
+                    "id": "goal_d_4",
+                    "label": "Card Analytics and Marketing Strategies",
+                    "description": "Focused on analytics for card marketing strategies to boost engagement at Axis Bank, driving increases in cross-selling and credit limit approvals.",
+                    "auto_inferred": true
+                },
+                {
+                    "id": "goal_d_5",
+                    "label": "Marketing Analytics and Campaign Performance",
+                    "description": "Designed marketing campaigns for insurance and retail liabilities at Axis Bank, improving conversions through channels like Email, SMS, and Call center.",
+                    "auto_inferred": true
+                }
+            ]
+        },
+        {
+            "id": "312fbed6",
+            "name": "Test",
+            "created_at": "2026-05-19T12:06:20.286887",
+            "is_active": false,
+            "goals": [
+                {
+                    "id": "goal_ai_a87298cd",
+                    "label": "Senior/Leadership Role",
+                    "description": "Progress to senior individual contributor or management role",
+                    "auto_inferred": true
+                },
+                {
+                    "id": "goal_ai_68fc88ab",
+                    "label": "Competitive Compensation",
+                    "description": "Achieve market-competitive salary and benefits",
+                    "auto_inferred": true
+                }
+            ]
+        }
+    ]
+}
