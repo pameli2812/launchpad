@@ -1,1 +1,8 @@
+.env
+__pycache__/
+*.pyc
+data/*
+.DS_Store
 venv/
+**/venv/
+**/.DS_Store
