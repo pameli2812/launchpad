@@ -488,17 +488,14 @@ def _resume_row(pdf_info, is_current, index):
     modified = pdf_info["modified"]
     
     # Create table row with borders
-    col1, col2, col3, col4 = st.columns([3, 1, 1, 1])
+    col1, col2, col3 = st.columns([4, 1, 1])
     
     with col1:
         st.markdown(f"**{name}**")
         st.caption(f"{size_kb} KB • {modified}")
     
     with col2:
-        pass
-    
-    with col3:
-        if st.button("👁️ View", key=f"view_{name}_{pdf_info['path']}", 
+        if st.button("👁️", key=f"view_{name}_{pdf_info['path']}", 
                      help="View resume",
                      use_container_width=True):
             pdf_bytes = load_pdf_bytes(pdf_info["path"])
@@ -507,8 +504,8 @@ def _resume_row(pdf_info, is_current, index):
             st.session_state.pdf_modal_name = name
             st.rerun()
     
-    with col4:
-        if st.button("🗑️ Delete", key=f"delr_{name}_{pdf_info['path']}", 
+    with col3:
+        if st.button("🗑️", key=f"delr_{name}_{pdf_info['path']}", 
                      help="Delete resume",
                      use_container_width=True):
             delete_pdf(pdf_info["path"])
@@ -593,17 +590,18 @@ def render_setup_tab():
     st.divider()
     st.subheader("Your Resumes")
 
-    # Add custom CSS for button styling
+    # Add custom CSS for resume table button styling
     st.markdown(
         """
         <style>
-        .resume-table-btn {
+        /* Style resume table buttons */
+        div[data-testid="column"] button {
             background-color: #f3f4f6 !important;
             border: 1px solid #000000 !important;
             color: #000000 !important;
-            font-weight: 500;
+            font-weight: 500 !important;
         }
-        .resume-table-btn:hover {
+        div[data-testid="column"] button:hover {
             background-color: #e5e7eb !important;
         }
         </style>
@@ -628,12 +626,11 @@ def render_setup_tab():
         # Table header
         st.markdown(
             """
-            <div style='display:grid; grid-template-columns:3fr 1fr 1fr 1fr;
+            <div style='display:grid; grid-template-columns:4fr 1fr 1fr;
                         padding:12px 16px; background:#f1f5f9; border:1px solid #000000;
                         border-radius:6px 6px 0 0; font-weight:600; font-size:0.85rem; 
-                        color:#1a1a2e; margin-bottom:0;'>
+                        color:#1a1a2e;'>
                 <div>File Name</div>
-                <div style='text-align:center;'></div>
                 <div style='text-align:center;'>View</div>
                 <div style='text-align:center;'>Delete</div>
             </div>
@@ -646,7 +643,7 @@ def render_setup_tab():
             # Add border styling for each row
             st.markdown(
                 f"""
-                <div style='display:grid; grid-template-columns:3fr 1fr 1fr 1fr;
+                <div style='display:grid; grid-template-columns:4fr 1fr 1fr;
                             padding:0; background:#ffffff; border:1px solid #000000;
                             border-top:none; align-items:center;'>
                 """,
@@ -656,8 +653,17 @@ def render_setup_tab():
             _resume_row(pdf_info, pdf_info["name"] == current_name, i)
             st.markdown("</div>", unsafe_allow_html=True)
         
+        # Add border to close the table
+        st.markdown(
+            """
+            <div style='border:1px solid #000000; border-top:none; height:1px;
+                        border-radius:0 0 6px 6px;'></div>
+            """,
+            unsafe_allow_html=True,
+        )
+        
         if total_pages > 1:
-            st.markdown("<div style='height:6px'/>", unsafe_allow_html=True)
+            st.markdown("<div style='height:12px'/>", unsafe_allow_html=True)
             pc1, pc2, pc3 = st.columns([1, 3, 1])
             with pc1:
                 if page > 0 and st.button("Previous", key="pg_prev"):
