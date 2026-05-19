@@ -36,7 +36,8 @@ def save_pdf_locally(
     filename: str
 ) -> str:
     """
-    Save PDF locally and return path.
+    Save PDF locally keeping original filename.
+    If same name uploaded multiple times, create versioned copies.
     """
 
     try:
@@ -49,24 +50,20 @@ def save_pdf_locally(
         if not safe_name.endswith(".pdf"):
             safe_name += ".pdf"
 
-        timestamp = datetime.now().strftime(
-            "%Y%m%d_%H%M%S"
-        )
+        # Split name and extension
+        name_parts = safe_name.rsplit(".", 1)
+        base_name = name_parts[0]
+        extension = name_parts[1]
 
-        name_parts = safe_name.rsplit(
-            ".",
-            1
-        )
-
-        unique_name = (
-            f"{name_parts[0]}"
-            f"_{timestamp}.pdf"
-        )
-
-        file_path = (
-            UPLOAD_DIR
-            / unique_name
-        )
+        # Create versioned filename if file exists
+        file_path = UPLOAD_DIR / safe_name
+        counter = 1
+        
+        while file_path.exists():
+            # Add version number before extension
+            versioned_name = f"{base_name}_v{counter}.{extension}"
+            file_path = UPLOAD_DIR / versioned_name
+            counter += 1
 
         with open(file_path, "wb") as f:
             f.write(pdf_bytes)
@@ -107,7 +104,7 @@ def get_uploaded_pdfs() -> List[Dict]:
                     datetime.fromtimestamp(
                         pdf_file.stat().st_mtime
                     ).strftime(
-                        "%Y-%m-%d %H:%M"
+                        "%Y-%m-%d %H:%M:%S"
                     )
                 })
 

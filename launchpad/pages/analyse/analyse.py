@@ -119,11 +119,11 @@ def render_scorecard_table(scores):
 def render_gaps(gaps):
     """Render gaps with type / details / criticality format."""
     if not gaps:
-        st.success("No significant gaps found — this JD is a strong match for your profile.")
+        st.success("✓ No gaps found — this JD is a perfect match for the resume selected.")
         return
 
-    # Try to parse structured gaps if the LLM returned them;
-    # fall back to rendering raw strings with criticality inference
+    # Group gaps by type for better organization
+    gaps_by_type = {}
     for gap in gaps:
         if isinstance(gap, dict):
             gap_type = gap.get("type", "Skill Gap")
@@ -141,30 +141,45 @@ def render_gaps(gaps):
             gap_type = "Gap"
             details = gap_str
 
-        color_map = {"High": "#fef2f2", "Medium": "#fffbeb", "Low": "#f0fdf4"}
-        border_map = {"High": "#fca5a5", "Medium": "#fcd34d", "Low": "#86efac"}
-        label_color = {"High": "#991b1b", "Medium": "#92400e", "Low": "#166534"}
+        if gap_type not in gaps_by_type:
+            gaps_by_type[gap_type] = []
+        gaps_by_type[gap_type].append({
+            "details": details,
+            "criticality": criticality
+        })
 
-        bg = color_map.get(criticality, "#f8f9fb")
-        border = border_map.get(criticality, "#cbd5e1")
-        lc = label_color.get(criticality, "#1a1a2e")
+    # Render grouped gaps
+    for gap_type, gap_list in gaps_by_type.items():
+        st.markdown(f"#### {gap_type}")
+        
+        # Group by criticality within each type
+        for gap_item in gap_list:
+            details = gap_item["details"]
+            criticality = gap_item["criticality"]
+            
+            color_map = {"High": "#fef2f2", "Medium": "#fffbeb", "Low": "#f0fdf4"}
+            border_map = {"High": "#fca5a5", "Medium": "#fcd34d", "Low": "#86efac"}
+            label_color = {"High": "#991b1b", "Medium": "#92400e", "Low": "#166534"}
 
-        st.markdown(
-            f"""
-            <div style='background:{bg}; border:1px solid {border}; border-radius:8px;
-                        padding:12px 16px; margin-bottom:10px;'>
-                <div style='display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;'>
-                    <span style='font-weight:600; color:#1a1a2e;'>{gap_type}</span>
-                    <span style='font-size:0.78rem; font-weight:700; color:{lc};
-                                 background:{border}; padding:2px 8px; border-radius:12px;'>
-                        {criticality}
-                    </span>
+            bg = color_map.get(criticality, "#f8f9fb")
+            border = border_map.get(criticality, "#cbd5e1")
+            lc = label_color.get(criticality, "#1a1a2e")
+
+            st.markdown(
+                f"""
+                <div style='background:{bg}; border:1px solid {border}; border-radius:8px;
+                            padding:12px 16px; margin-bottom:10px;'>
+                    <div style='display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;'>
+                        <span style='font-weight:500; color:#1a1a2e; font-size:0.95rem;'>• {details}</span>
+                        <span style='font-size:0.78rem; font-weight:700; color:{lc};
+                                     background:{border}; padding:3px 10px; border-radius:12px; white-space:nowrap; margin-left:12px;'>
+                            {criticality}
+                        </span>
+                    </div>
                 </div>
-                <p style='margin:0; color:#374151; font-size:0.9rem;'>{details}</p>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
+                """,
+                unsafe_allow_html=True,
+            )
 
 
 def render_suggestions_table(sugg):
@@ -278,7 +293,7 @@ def render_analyse_tab():
         if st.session_state.get("resume_filename") in resume_names:
             default_resume_idx = resume_names.index(st.session_state.resume_filename)
         selected_resume = st.selectbox(
-            "Resume", resume_names, index=default_resume_idx, key="analyse_resume_selector",
+            "📄 Resume", resume_names, index=default_resume_idx, key="analyse_resume_selector",
         )
         selected_resume_text = library[selected_resume]["text"]
 
@@ -290,7 +305,7 @@ def render_analyse_tab():
         if active_id and active_id in gs_ids:
             default_gs_idx = gs_ids.index(active_id)
         selected_gs_name = st.selectbox(
-            "Goal Set", gs_names, index=default_gs_idx, key="analyse_goalset_selector",
+            "🎯 Goal Set", gs_names, index=default_gs_idx, key="analyse_goalset_selector",
         )
         selected_gs_id = gs_ids[gs_names.index(selected_gs_name)]
         selected_gs = goal_sets[selected_gs_id]
@@ -343,15 +358,10 @@ def render_analyse_tab():
 
     # ── Analyze button ─────────────────────────
     st.divider()
-    c1, c2 = st.columns([2, 1])
-    with c1:
-        analyze_btn = st.button("Analyze JD", use_container_width=True, key="analyze_btn", type="primary")
-    with c2:
-        if st.button("Start New Analysis", use_container_width=True, key="new_analysis_btn"):
-            st.session_state.current_analysis = None
-            st.session_state.pop("suggestions", None)
-            st.session_state.force_suggestions = False
-            st.rerun()
+    if st.button("Analyze JD", use_container_width=True, key="analyze_btn", type="primary"):
+        analyze_btn = True
+    else:
+        analyze_btn = False
 
     # ── Run analysis ──────────────────────────
     if analyze_btn and (jd_text or jd_url):
@@ -411,7 +421,16 @@ def render_analyse_tab():
 
     # Summary
     st.subheader("Summary")
-    st.info(scorecard.summary)
+    st.markdown(
+        f"""
+        <div style='background:#f8f9fb; border:1px solid #e2e8f0; border-radius:8px; padding:16px;'>
+            <p style='margin:0; color:#1a1a2e; line-height:1.6; font-size:0.95rem;'>
+                {scorecard.summary}
+            </p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
     st.divider()
 
     # Scorecard
@@ -441,26 +460,12 @@ def render_analyse_tab():
             placeholder="e.g. Focus on making my AI experience more prominent. Keep changes concise. Emphasize leadership.",
         )
 
-        c1, c2, c3 = st.columns(3)
+        c1, c2 = st.columns(2)
 
         with c1:
             get_sugg = st.button("Get Suggestions", use_container_width=True, key="sugg_btn")
         with c2:
             regen = st.button("Regenerate", use_container_width=True, key="regen_btn")
-        with c3:
-            sugg_for_dl = st.session_state.get("suggestions")
-            if sugg_for_dl and isinstance(sugg_for_dl, dict):
-                # Build download text
-                output = "RESUME IMPROVEMENT SUGGESTIONS\n" + "=" * 50 + "\n\n"
-                for p in sugg_for_dl.get("paraphrasing", []):
-                    output += f"[TEXT EDIT] {p.get('section','')}\nBEFORE: {p.get('original','')}\nAFTER:  {p.get('improved','')}\n\n"
-                for m in sugg_for_dl.get("missing", []):
-                    output += f"[ADD DATA] {m.get('section','')}\nADD: {m.get('what_to_add','')}\n\n"
-                st.download_button(
-                    "Download Suggestions", data=output,
-                    file_name="suggestions.txt", mime="text/plain",
-                    use_container_width=True, key="dl_sugg_btn",
-                )
 
         if get_sugg or regen:
             with st.spinner("Generating suggestions..."):
@@ -481,7 +486,60 @@ def render_analyse_tab():
 
         sugg = st.session_state.get("suggestions")
         if sugg and isinstance(sugg, dict):
-            render_suggestions_table(sugg)
+            if any([sugg.get("paraphrasing"), sugg.get("missing"), sugg.get("remove"), sugg.get("polish")]):
+                render_suggestions_table(sugg)
+                
+                # Download and Save to History buttons
+                c_dl, c_save = st.columns(2)
+                sugg_for_dl = sugg
+                if sugg_for_dl and isinstance(sugg_for_dl, dict):
+                    # Build download text
+                    output = "RESUME IMPROVEMENT SUGGESTIONS\n" + "=" * 50 + "\n\n"
+                    for p in sugg_for_dl.get("paraphrasing", []):
+                        output += f"[TEXT EDIT] {p.get('section','')}\nBEFORE: {p.get('original','')}\nAFTER:  {p.get('improved','')}\n\n"
+                    for m in sugg_for_dl.get("missing", []):
+                        output += f"[ADD DATA] {m.get('section','')}\nADD: {m.get('what_to_add','')}\n\n"
+                    
+                    with c_dl:
+                        st.download_button(
+                            "📥 Download Suggestions", data=output,
+                            file_name="suggestions.txt", mime="text/plain",
+                            use_container_width=True, key="dl_sugg_btn",
+                        )
+                    
+                    with c_save:
+                        if st.button("💾 Save to History", use_container_width=True, key="save_sugg_btn"):
+                            # Save suggestions to the last history entry
+                            if hasattr(st.session_state, "history") and st.session_state.history:
+                                st.session_state.history[-1].suggestions = sugg
+                                st.session_state.history[-1].suggestions_generated_at = datetime.now()
+                                serialized = []
+                                for e in st.session_state.history:
+                                    entry_dict = {
+                                        "jd_title": e.jd_title, 
+                                        "company": e.company,
+                                        "goal_set_name": e.goal_set_name, 
+                                        "overall_fit": e.overall_fit,
+                                        "verdict": e.verdict, 
+                                        "status": e.status,
+                                        "analyzed_at": e.analyzed_at.isoformat(),
+                                    }
+                                    if hasattr(e, 'suggestions') and e.suggestions:
+                                        entry_dict["suggestions"] = e.suggestions
+                                    serialized.append(entry_dict)
+                                write_json(HISTORY_FILE, serialized)
+                                st.success("✅ Suggestions saved to history!")
+            else:
+                st.info("✓ No additional suggestions needed. Your resume is a good match!")
+
+    st.divider()
+    
+    # Start New Analysis button — positioned after suggestions
+    if st.button("Start New Analysis", use_container_width=True, key="new_analysis_btn", type="secondary"):
+        st.session_state.current_analysis = None
+        st.session_state.pop("suggestions", None)
+        st.session_state.force_suggestions = False
+        st.rerun()
 
     st.divider()
     st.caption(f"Analysis run at {datetime.now().strftime('%d %b %Y %H:%M')} · Auto-saved to history")

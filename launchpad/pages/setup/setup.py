@@ -4,6 +4,7 @@ import streamlit as st
 import uuid
 from datetime import datetime
 from io import BytesIO
+from pathlib import Path
 
 from utils.parser import extract_text_from_pdf, extract_text_from_docx
 from utils.goal_inference import auto_infer_goals_from_resume
@@ -49,7 +50,10 @@ def load_goal_sets():
     goal_sets = {}
     for gs in data.get("goal_sets", []):
         goal_objects = [
-            Goal(id=g["id"], label=g["label"], description=g["description"], auto_inferred=g.get("auto_inferred", False))
+            Goal(
+                id=g["id"], label=g["label"], description=g["description"],
+                auto_inferred=g.get("auto_inferred", False)
+            )
             for g in gs["goals"]
         ]
         goal_set = GoalSet(
@@ -96,10 +100,6 @@ def _load_resume_library_from_disk():
         st.session_state.resume_pdf_bytes = st.session_state.resume_library[first_name]["pdf_bytes"]
 
 
-# ─────────────────────────────────────────────
-# Green active-button JS injection
-# ─────────────────────────────────────────────
-
 def _inject_active_btn_style():
     st.markdown(
         """
@@ -107,10 +107,11 @@ def _inject_active_btn_style():
         (function () {
             function styleActive() {
                 document.querySelectorAll('button').forEach(function(btn) {
-                    if ((btn.innerText || '').trim() === 'Active') {
-                        btn.style.background = '#16a34a';
-                        btn.style.border = '1px solid #16a34a';
-                        btn.style.color = '#ffffff';
+                    const txt = (btn.innerText || btn.textContent || '').trim();
+                    if (txt === 'Active') {
+                        btn.style.setProperty('background-color', '#16a34a', 'important');
+                        btn.style.setProperty('color', '#ffffff', 'important');
+                        btn.style.setProperty('border', '1px solid #16a34a', 'important');
                     }
                 });
             }
@@ -122,6 +123,397 @@ def _inject_active_btn_style():
         """,
         unsafe_allow_html=True,
     )
+
+
+# ─────────────────────────────────────────────
+# Goal creation panel (shown in an expander)
+# ─────────────────────────────────────────────
+
+def _render_create_goal_panel():
+    """
+    Create New Goal panel — matches wireframe:
+    Goal Name input + method choice (Auto-create / Create Manually)
+    Auto-create: resume selector + optional context + Generate button + editable list
+    Create Manually: card-style add/remove rows
+    """
+    goal_set_name = st.text_input("Goal Set Name", key="new_gs_name",
+                                   placeholder="e.g. Director of Product at AI Startup")
+
+    st.markdown("**How would you like to create goals?**")
+    method = st.radio(
+        "Method",
+        ["Auto-create (AI)", "Create Manually"],
+        index=0,
+        key="goal_create_method",
+        horizontal=True,
+        label_visibility="collapsed",
+    )
+
+    goals = []
+
+    # ── AUTO-CREATE ───────────────────────────
+    if method == "Auto-create (AI)":
+        library = st.session_state.get("resume_library", {})
+        resume_names = list(library.keys()) if library else []
+
+        if resume_names:
+            default_idx = 0
+            cur = st.session_state.get("resume_filename")
+            if cur in resume_names:
+                default_idx = resume_names.index(cur)
+            infer_from = st.selectbox(
+                "Resume to infer from",
+                resume_names,
+                index=default_idx,
+                key="infer_resume_select",
+            )
+            infer_text = library[infer_from]["text"]
+        else:
+            infer_text = st.session_state.get("resume_text", "")
+
+        user_ctx = st.text_area(
+            "Describe what you want (optional)",
+            placeholder="e.g. I want GenAI/LLM roles, prefer remote, leadership-focused...",
+            height=80,
+            key="optional_goal_context",
+        )
+
+        if st.button("Generate goals", key="autoinfer_btn"):
+            with st.spinner("Analyzing resume..."):
+                combined = infer_text
+                if user_ctx.strip():
+                    combined += "\n\nAdditional preferences:\n" + user_ctx.strip()
+                inferred = auto_infer_goals_from_resume(combined)
+                # Initialize with unique IDs
+                st.session_state.auto_inferred_goals = [
+                    {"id": str(uuid.uuid4())[:8], "label": g["label"], "description": g.get("description", "")}
+                    for g in inferred
+                ]
+            st.rerun()
+
+        # Show inferred goals for review
+        if st.session_state.get("auto_inferred_goals"):
+            st.markdown("**Review & edit — then save:**")
+            inferred = st.session_state.auto_inferred_goals
+            to_remove_id = None
+            
+            for i, g in enumerate(inferred):
+                c1, c2 = st.columns([5, 1])
+                with c1:
+                    inferred[i]["label"] = st.text_input(
+                        f"Metric {i+1}", value=g["label"], key=f"ai_label_{g['id']}"
+                    )
+                    inferred[i]["description"] = st.text_input(
+                        "Description", value=g.get("description", ""), key=f"ai_desc_{g['id']}"
+                    )
+                with c2:
+                    st.write("")
+                    st.write("")
+                    if st.button("✕", key=f"rm_ai_{g['id']}"):
+                        to_remove_id = g['id']
+            
+            if to_remove_id is not None:
+                st.session_state.auto_inferred_goals = [g for g in st.session_state.auto_inferred_goals if g['id'] != to_remove_id]
+                st.rerun()
+
+            # Extra manual metrics on top of inferred
+            if "extra_goals" not in st.session_state:
+                st.session_state.extra_goals = []
+            if st.session_state.extra_goals:
+                st.markdown("**Additional metrics:**")
+            
+            to_remove_extra_id = None
+            for eg in st.session_state.extra_goals:
+                ec1, ec2 = st.columns([5, 1])
+                with ec1:
+                    eg["label"] = st.text_input("Label", value=eg["label"], key=f"eg_label_{eg['id']}")
+                    eg["description"] = st.text_input("Description", value=eg.get("description", ""), key=f"eg_desc_{eg['id']}")
+                with ec2:
+                    st.write("")
+                    st.write("")
+                    if st.button("✕", key=f"rm_eg_{eg['id']}"):
+                        to_remove_extra_id = eg['id']
+            
+            if to_remove_extra_id is not None:
+                st.session_state.extra_goals = [g for g in st.session_state.extra_goals if g['id'] != to_remove_extra_id]
+                st.rerun()
+            
+            if st.button("+ Add metric", key="add_extra_goal"):
+                st.session_state.extra_goals.append({"id": str(uuid.uuid4())[:8], "label": "", "description": ""})
+                st.rerun()
+
+            # Build metrics list
+            for g in inferred:
+                if g["label"].strip():
+                    goals.append({"id": f"goal_ai_{g['id']}", "label": g["label"].strip(),
+                                  "description": g.get("description", ""), "auto_inferred": True})
+            for eg in st.session_state.get("extra_goals", []):
+                if eg["label"].strip():
+                    goals.append({"id": f"goal_ex_{eg['id']}", "label": eg["label"].strip(),
+                                  "description": eg.get("description", ""), "auto_inferred": False})
+
+    # ── CREATE MANUALLY ───────────────────────
+    else:
+        if "manual_goals" not in st.session_state:
+            st.session_state.manual_goals = [{"id": str(uuid.uuid4())[:8], "label": "", "description": ""}]
+
+        to_remove_manual_id = None
+        for mg in st.session_state.manual_goals:
+            st.markdown(
+                f"<div style='background:#f8f9fb; border:1px solid #e2e8f0; "
+                f"border-radius:8px; padding:12px 14px; margin-bottom:8px;'>",
+                unsafe_allow_html=True,
+            )
+            mc1, mc2 = st.columns([5, 1])
+            with mc1:
+                mg["label"] = st.text_input(
+                    f"Goal name", value=mg["label"], key=f"mg_label_{mg['id']}",
+                    placeholder="e.g. Senior PM at an AI-first company"
+                )
+                mg["description"] = st.text_area(
+                    "What does success look like?", value=mg.get("description", ""),
+                    key=f"mg_desc_{mg['id']}", height=68,
+                    placeholder="e.g. Leading 5+ PMs, B2B SaaS, GenAI product focus"
+                )
+            with mc2:
+                st.write("")
+                st.write("")
+                if len(st.session_state.manual_goals) > 1:
+                    if st.button("✕", key=f"rm_mg_{mg['id']}"):
+                        to_remove_manual_id = mg['id']
+            st.markdown("</div>", unsafe_allow_html=True)
+
+        if to_remove_manual_id is not None:
+            st.session_state.manual_goals = [mg for mg in st.session_state.manual_goals if mg['id'] != to_remove_manual_id]
+            st.rerun()
+
+        ca, cb = st.columns([1, 1])
+        with ca:
+            if st.button("+ Add goal", key="add_manual_goal"):
+                st.session_state.manual_goals.append({"id": str(uuid.uuid4())[:8], "label": "", "description": ""})
+                st.rerun()
+        with cb:
+            if st.button("Clear all", key="clear_manual_goals"):
+                st.session_state.manual_goals = [{"id": str(uuid.uuid4())[:8], "label": "", "description": ""}]
+                st.rerun()
+
+        goals = [
+            {"id": f"goal_m_{mg['id']}", "label": mg["label"].strip(),
+             "description": mg.get("description", ""), "auto_inferred": False}
+            for mg in st.session_state.manual_goals
+            if mg["label"].strip()
+        ]
+
+    # ── Save ──────────────────────────────────
+    st.divider()
+    can_save = bool(goals and goal_set_name and goal_set_name.strip())
+    if not goal_set_name:
+        st.caption("Enter a goal set name above.")
+    elif not goals:
+        st.caption("Add at least one goal with a name.")
+
+    if can_save:
+        if st.button("Save Goal Set", use_container_width=True, key="save_gs_btn", type="primary"):
+            gs_id = str(uuid.uuid4())[:8]
+            goal_objects = [
+                Goal(id=g["id"], label=g["label"], description=g.get("description", ""),
+                     confidence="high", auto_inferred=g.get("auto_inferred", False))
+                for g in goals
+            ]
+            goal_set = GoalSet(
+                id=gs_id, name=goal_set_name.strip(),
+                goals=goal_objects, created_at=datetime.now(), is_active=False,
+            )
+            st.session_state.goal_sets[gs_id] = goal_set
+            # Reset form
+            st.session_state.auto_inferred_goals = []
+            st.session_state.extra_goals = []
+            st.session_state.manual_goals = [{"label": "", "description": ""}]
+            st.session_state.show_create_goal = False
+            save_goal_sets(st.session_state.goal_sets, st.session_state.active_goal_set_id)
+            st.success(f'Saved "{goal_set_name.strip()}". Activate it in the list above.')
+            st.rerun()
+
+
+# ─────────────────────────────────────────────
+# Existing goals — table view (matches wireframe)
+# ─────────────────────────────────────────────
+
+def _render_goal_sets_table():
+    goal_sets = st.session_state.goal_sets
+    if not goal_sets:
+        st.info("No goal sets yet. Click 'Add New Goal' below to create one.")
+        return
+
+    # Add custom CSS for goal table buttons
+    st.markdown(
+        """
+        <style>
+        .goal-table-btn {
+            background-color: #f3f4f6 !important;
+            border: 1px solid #000000 !important;
+            color: #000000 !important;
+            font-weight: 500;
+        }
+        .goal-table-btn:hover {
+            background-color: #e5e7eb !important;
+        }
+        .goal-active-btn {
+            background-color: #dcfce7 !important;
+            border: 1px solid #16a34a !important;
+            color: #16a34a !important;
+            font-weight: 600;
+        }
+        .goal-active-btn:hover {
+            background-color: #c6f6d5 !important;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    # Table header
+    st.markdown(
+        """
+        <div style='display:grid; grid-template-columns:2fr 0.8fr 2fr 1.2fr 1fr 0.8fr 0.8fr;
+                    padding:12px 16px; background:#f1f5f9; border:1px solid #000000;
+                    border-radius:6px 6px 0 0; font-weight:600; font-size:0.85rem; 
+                    color:#1a1a2e; margin-bottom:0;'>
+            <div>Goal Name</div>
+            <div style='text-align:center;'>Metrics</div>
+            <div>Description</div>
+            <div style='text-align:center;'>Status</div>
+            <div style='text-align:center;'>View</div>
+            <div style='text-align:center;'>Delete</div>
+            <div></div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    for gs_id, goal_set in list(goal_sets.items()):
+        is_active = goal_set.is_active
+        status_label = "Active" if is_active else "Inactive"
+        desc_preview = goal_set.goals[0].description[:60] + "..." if goal_set.goals and goal_set.goals[0].description else "—"
+
+        # Row container
+        st.markdown(
+            f"""
+            <div style='display:grid; grid-template-columns:2fr 0.8fr 2fr 1.2fr 1fr 0.8fr 0.8fr;
+                        padding:0; background:#ffffff; border:1px solid #000000;
+                        border-top:none; align-items:center;'>
+            """,
+            unsafe_allow_html=True,
+        )
+
+        col1, col2, col3, col4, col5, col6, col7 = st.columns([2, 0.8, 2, 1.2, 1, 0.8, 0.8])
+
+        with col1:
+            st.markdown(f"**{goal_set.name}**")
+
+        with col2:
+            st.markdown(f"<div style='text-align:center;'>{len(goal_set.goals)}</div>", unsafe_allow_html=True)
+
+        with col3:
+            st.markdown(f"<div style='color:#475569;'>{desc_preview}</div>", unsafe_allow_html=True)
+
+        with col4:
+            status_bg = "#dcfce7" if is_active else "#f1f5f9"
+            status_color = "#16a34a" if is_active else "#64748b"
+            st.markdown(
+                f"""
+                <div style='text-align:center;'>
+                    <span style='background:{status_bg}; color:{status_color};
+                                 padding:4px 10px; border-radius:12px; font-size:0.78rem; font-weight:600;'>
+                        {status_label}
+                    </span>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+
+        with col5:
+            if st.button("👁️", key=f"view_goals_{gs_id}", help="View goals",
+                         use_container_width=True):
+                st.session_state.show_goals_expanded = gs_id
+                st.rerun()
+
+        with col6:
+            if st.button("🗑️", key=f"del_gs_{gs_id}", help="Delete goal set",
+                         use_container_width=True):
+                del st.session_state.goal_sets[gs_id]
+                if st.session_state.active_goal_set_id == gs_id:
+                    st.session_state.active_goal_set_id = None
+                save_goal_sets(st.session_state.goal_sets, st.session_state.active_goal_set_id)
+                st.rerun()
+
+        with col7:
+            if is_active:
+                if st.button("✓ Active", key=f"deact_{gs_id}", use_container_width=True,
+                             help="Click to deactivate"):
+                    _deactivate_goal_set(gs_id)
+                    st.rerun()
+            else:
+                if st.button("⊕ Activate", key=f"act_{gs_id}", use_container_width=True,
+                             help="Activate this goal set"):
+                    _activate_goal_set(gs_id)
+                    st.rerun()
+
+        st.markdown("</div>", unsafe_allow_html=True)
+
+        # Show goals if expanded
+        if st.session_state.get("show_goals_expanded") == gs_id:
+            st.markdown(
+                """
+                <div style='background:#f8f9fb; border:1px solid #e2e8f0; border-radius:6px; 
+                            padding:12px; margin:8px 0;'>
+                <strong style='color:#1a1a2e;'>Goals in this set:</strong>
+                """,
+                unsafe_allow_html=True,
+            )
+            for g in goal_set.goals:
+                st.markdown(f"• **{g.label}**")
+                if g.description:
+                    st.caption(g.description)
+            st.markdown("</div>", unsafe_allow_html=True)
+
+
+# ─────────────────────────────────────────────
+# Resume row card
+# ─────────────────────────────────────────────
+
+def _resume_row(pdf_info, is_current, index):
+    name = pdf_info["name"]
+    size_kb = round(pdf_info["size"] / 1024, 1)
+    modified = pdf_info["modified"]
+    
+    # Create table row with borders
+    col1, col2, col3, col4 = st.columns([3, 1, 1, 1])
+    
+    with col1:
+        st.markdown(f"**{name}**")
+        st.caption(f"{size_kb} KB • {modified}")
+    
+    with col2:
+        pass
+    
+    with col3:
+        if st.button("👁️ View", key=f"view_{name}_{pdf_info['path']}", 
+                     help="View resume",
+                     use_container_width=True):
+            pdf_bytes = load_pdf_bytes(pdf_info["path"])
+            st.session_state.show_pdf_modal = True
+            st.session_state.pdf_modal_bytes = pdf_bytes
+            st.session_state.pdf_modal_name = name
+            st.rerun()
+    
+    with col4:
+        if st.button("🗑️ Delete", key=f"delr_{name}_{pdf_info['path']}", 
+                     help="Delete resume",
+                     use_container_width=True):
+            delete_pdf(pdf_info["path"])
+            st.session_state.resume_library.pop(name, None)
+            st.rerun()
 
 
 # ─────────────────────────────────────────────
@@ -141,14 +533,16 @@ def render_setup_tab():
         _load_resume_library_from_disk()
         st.session_state.resume_library_loaded = True
 
+    if "show_create_goal" not in st.session_state:
+        st.session_state.show_create_goal = False
+
     _inject_active_btn_style()
 
     # ════════════════════════════════════════
-    # SECTION 1 — RESUME INVENTORY (top)
+    # SECTION 1 — RESUMES
     # ════════════════════════════════════════
     st.header("Step 1: Resumes")
 
-    # ── Upload ────────────────────────────────
     uploaded_file = st.file_uploader(
         "Upload resume (PDF or DOCX, max 5 MB)",
         type=["pdf", "docx"],
@@ -158,7 +552,7 @@ def render_setup_tab():
     if uploaded_file:
         file_mb = len(uploaded_file.getvalue()) / (1024 * 1024)
         if file_mb > MAX_FILE_SIZE_MB:
-            st.error(f"File is {file_mb:.1f} MB — limit is {MAX_FILE_SIZE_MB} MB. Please compress or trim it.")
+            st.error(f"File is {file_mb:.1f} MB — limit is {MAX_FILE_SIZE_MB} MB.")
         elif uploaded_file.name != st.session_state.get("last_uploaded_file"):
             try:
                 pdf_bytes = uploaded_file.getvalue()
@@ -167,33 +561,28 @@ def render_setup_tab():
                     try:
                         save_pdf_locally(pdf_bytes, uploaded_file.name)
                     except Exception as e:
-                        st.warning(f"Could not save PDF locally: {e}")
+                        st.warning(f"Could not save PDF: {e}")
                     st.session_state.resume_pdf_bytes = pdf_bytes
                 else:
                     resume_text = extract_text_from_docx(uploaded_file)
                     pdf_bytes = None
                     st.session_state.resume_pdf_bytes = None
 
+                original_name = Path(uploaded_file.name).stem
                 st.session_state.resume_text = resume_text
-                st.session_state.resume_filename = uploaded_file.name
+                st.session_state.resume_filename = original_name
                 st.session_state.last_uploaded_file = uploaded_file.name
-
                 if "resume_library" not in st.session_state:
                     st.session_state.resume_library = {}
-                # Retain original filename — duplicates are allowed (different versions)
-                st.session_state.resume_library[uploaded_file.name] = {
-                    "text": resume_text,
-                    "pdf_bytes": pdf_bytes,
-                }
-                st.success(f"Uploaded: {uploaded_file.name}")
+                st.session_state.resume_library[original_name] = {"text": resume_text, "pdf_bytes": pdf_bytes}
+                st.success(f"Uploaded: {original_name}")
             except Exception as e:
                 st.error(f"Error parsing resume: {e}")
 
-        # View button — only after upload, single click
         if (
             uploaded_file.type == "application/pdf"
             and st.session_state.get("resume_pdf_bytes")
-            and st.session_state.get("resume_filename") == uploaded_file.name
+            and st.session_state.get("resume_filename") == Path(uploaded_file.name).stem
         ):
             if st.button("Open in Viewer", key="open_pdf_btn"):
                 st.session_state.show_pdf_modal = True
@@ -201,9 +590,26 @@ def render_setup_tab():
                 st.session_state.pdf_modal_name = st.session_state.resume_filename
                 st.rerun()
 
-    # ── Resume inventory with pagination ──────
     st.divider()
     st.subheader("Your Resumes")
+
+    # Add custom CSS for button styling
+    st.markdown(
+        """
+        <style>
+        .resume-table-btn {
+            background-color: #f3f4f6 !important;
+            border: 1px solid #000000 !important;
+            color: #000000 !important;
+            font-weight: 500;
+        }
+        .resume-table-btn:hover {
+            background-color: #e5e7eb !important;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
 
     try:
         all_pdfs = get_uploaded_pdfs()
@@ -212,353 +618,102 @@ def render_setup_tab():
 
     if all_pdfs:
         PAGE_SIZE = 5
-        total_pages = max(1, (len(all_pdfs) + PAGE_SIZE - 1) // PAGE_SIZE)
-        page_key = "resume_page"
-        if page_key not in st.session_state:
-            st.session_state[page_key] = 0
-
-        page = st.session_state[page_key]
-        page_pdfs = all_pdfs[page * PAGE_SIZE : (page + 1) * PAGE_SIZE]
-
-        for pdf_info in page_pdfs:
-            col1, col2, col3 = st.columns([5, 1, 1])
-            with col1:
-                # Show original filename, click to set as active
-                is_current = st.session_state.get("resume_filename") == pdf_info["name"]
-                label = f"**{pdf_info['name']}**" + (" — current" if is_current else "")
-                if st.button(label, key=f"sel_{pdf_info['name']}", use_container_width=True):
-                    try:
-                        pdf_bytes = load_pdf_bytes(pdf_info["path"])
-                        text = extract_text_from_pdf(BytesIO(pdf_bytes))
-                        st.session_state.resume_library[pdf_info["name"]] = {"text": text, "pdf_bytes": pdf_bytes}
-                        st.session_state.resume_text = text
-                        st.session_state.resume_filename = pdf_info["name"]
-                        st.session_state.resume_pdf_bytes = pdf_bytes
-                        st.rerun()
-                    except Exception as e:
-                        st.error(str(e))
-                st.caption(f"Modified: {pdf_info['modified']}")
-            with col2:
-                if st.button("View", key=f"view_{pdf_info['name']}"):
-                    pdf_bytes = load_pdf_bytes(pdf_info["path"])
-                    st.session_state.show_pdf_modal = True
-                    st.session_state.pdf_modal_bytes = pdf_bytes
-                    st.session_state.pdf_modal_name = pdf_info["name"]
-                    st.rerun()
-            with col3:
-                if st.button("Delete", key=f"del_{pdf_info['name']}"):
-                    delete_pdf(pdf_info["path"])
-                    st.session_state.resume_library.pop(pdf_info["name"], None)
-                    st.rerun()
-
-        # Pagination controls
+        total = len(all_pdfs)
+        total_pages = max(1, (total + PAGE_SIZE - 1) // PAGE_SIZE)
+        if "resume_page" not in st.session_state:
+            st.session_state.resume_page = 0
+        page = st.session_state.resume_page
+        current_name = st.session_state.get("resume_filename", "")
+        
+        # Table header
+        st.markdown(
+            """
+            <div style='display:grid; grid-template-columns:3fr 1fr 1fr 1fr;
+                        padding:12px 16px; background:#f1f5f9; border:1px solid #000000;
+                        border-radius:6px 6px 0 0; font-weight:600; font-size:0.85rem; 
+                        color:#1a1a2e; margin-bottom:0;'>
+                <div>File Name</div>
+                <div style='text-align:center;'></div>
+                <div style='text-align:center;'>View</div>
+                <div style='text-align:center;'>Delete</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+        
+        # Table rows
+        for i, pdf_info in enumerate(all_pdfs[page * PAGE_SIZE: (page + 1) * PAGE_SIZE]):
+            # Add border styling for each row
+            st.markdown(
+                f"""
+                <div style='display:grid; grid-template-columns:3fr 1fr 1fr 1fr;
+                            padding:0; background:#ffffff; border:1px solid #000000;
+                            border-top:none; align-items:center;'>
+                """,
+                unsafe_allow_html=True,
+            )
+            
+            _resume_row(pdf_info, pdf_info["name"] == current_name, i)
+            st.markdown("</div>", unsafe_allow_html=True)
+        
         if total_pages > 1:
-            pcol1, pcol2, pcol3 = st.columns([1, 2, 1])
-            with pcol1:
+            st.markdown("<div style='height:6px'/>", unsafe_allow_html=True)
+            pc1, pc2, pc3 = st.columns([1, 3, 1])
+            with pc1:
                 if page > 0 and st.button("Previous", key="pg_prev"):
-                    st.session_state[page_key] -= 1
+                    st.session_state.resume_page -= 1
                     st.rerun()
-            with pcol2:
-                st.caption(f"Page {page + 1} of {total_pages}  ({len(all_pdfs)} resumes total)")
-            with pcol3:
+            with pc2:
+                st.caption(f"Page {page + 1} of {total_pages}  ·  {total} resumes")
+            with pc3:
                 if page < total_pages - 1 and st.button("Next", key="pg_next"):
-                    st.session_state[page_key] += 1
+                    st.session_state.resume_page += 1
                     st.rerun()
     else:
         st.info("No resumes uploaded yet.")
 
     # ════════════════════════════════════════
-    # SECTION 2 — GOAL SETS (existing list FIRST)
+    # SECTION 2 — GOAL SETS
     # ════════════════════════════════════════
     st.divider()
-    st.header("Step 2: Goal Sets")
+    st.header("Step 2: Goals")
 
-    # ── Existing goal sets at top ─────────────
-    if st.session_state.goal_sets:
-        st.subheader("Your Goal Sets")
-        for gs_id, goal_set in list(st.session_state.goal_sets.items()):
-            is_active = goal_set.is_active
-            col1, col2, col3, col4 = st.columns([4, 1, 1, 1])
+    # Existing goals table — always shown first
+    _render_goal_sets_table()
 
-            with col1:
-                status_color = "#16a34a" if is_active else "#64748b"
-                status_text = " — ACTIVE" if is_active else ""
-                st.markdown(
-                    f"**{goal_set.name}**"
-                    f"<span style='color:{status_color}; font-size:0.82rem; font-weight:600;'>{status_text}</span>",
-                    unsafe_allow_html=True,
-                )
-                st.caption(
-                    f"{len(goal_set.goals)} goals: "
-                    + ", ".join(g.label for g in goal_set.goals[:3])
-                    + ("..." if len(goal_set.goals) > 3 else "")
-                )
+    st.markdown("<div style='height:12px'/>", unsafe_allow_html=True)
 
-            with col2:
-                if is_active:
-                    if st.button("Active", key=f"deact_{gs_id}", use_container_width=True, help="Click to deactivate"):
-                        _deactivate_goal_set(gs_id)
-                        st.rerun()
-                else:
-                    if st.button("Activate", key=f"act_{gs_id}", use_container_width=True):
-                        _activate_goal_set(gs_id)
-                        st.rerun()
-
-            with col3:
-                with st.expander("Goals"):
-                    for g in goal_set.goals:
-                        st.markdown(f"**{g.label}**")
-                        if g.description:
-                            st.caption(g.description)
-
-            with col4:
-                if st.button("Delete", key=f"delgs_{gs_id}"):
-                    del st.session_state.goal_sets[gs_id]
-                    if st.session_state.active_goal_set_id == gs_id:
-                        st.session_state.active_goal_set_id = None
-                    save_goal_sets(st.session_state.goal_sets, st.session_state.active_goal_set_id)
-                    st.rerun()
-
-            st.divider()
-    else:
-        st.info("No goal sets yet. Create one below.")
-
-    # ── Create new goal set (below existing list) ─────────────
-    st.subheader("Create New Goal Set")
-
-    if not st.session_state.get("resume_text"):
-        st.warning("Upload a resume first before creating goals.")
-        return
-
-    goal_set_name = st.text_input("Goal set name", key="new_gs_name")
-
-    goal_input_mode = st.radio(
-        "How would you like to define goals?",
-        ["Manual", "Auto-infer from resume", "Describe what you want (AI generates)"],
-        index=0,
-        key="goal_input_mode",
-        horizontal=True,
-    )
-
-    goals = []
-
-    # ── AUTO-INFER ────────────────────────────
-    if goal_input_mode == "Auto-infer from resume":
-        # Let user pick which resume to infer from
-        library = st.session_state.get("resume_library", {})
-        resume_names = list(library.keys()) if library else []
-
-        if resume_names:
-            default_idx = 0
-            cur = st.session_state.get("resume_filename")
-            if cur in resume_names:
-                default_idx = resume_names.index(cur)
-            infer_from = st.selectbox(
-                "Resume to infer goals from",
-                resume_names,
-                index=default_idx,
-                key="infer_resume_select",
-            )
-            infer_text = library[infer_from]["text"]
-        else:
-            infer_from = None
-            infer_text = st.session_state.get("resume_text", "")
-
-        if st.button("Generate goals from resume", key="autoinfer_btn"):
-            with st.spinner("Analyzing resume for goals..."):
-                inferred = auto_infer_goals_from_resume(infer_text)
-                st.session_state.auto_inferred_goals = inferred
-                st.session_state.auto_inferred_edits = {
-                    i: {"label": g["label"], "description": g.get("description", "")}
-                    for i, g in enumerate(inferred)
-                }
-
-        # Show inferred goals with edit fields (review before saving)
-        if st.session_state.get("auto_inferred_goals"):
-            st.markdown("**Review and edit before saving:**")
-            inferred = st.session_state.auto_inferred_goals
-            edits = st.session_state.get("auto_inferred_edits", {})
-
-            for i, g in enumerate(inferred):
-                c1, c2 = st.columns([3, 1])
-                with c1:
-                    new_label = st.text_input(
-                        f"Goal {i+1}", value=edits.get(i, {}).get("label", g["label"]),
-                        key=f"infer_label_{i}",
-                    )
-                    new_desc = st.text_input(
-                        "Description", value=edits.get(i, {}).get("description", g.get("description", "")),
-                        key=f"infer_desc_{i}",
-                    )
-                with c2:
-                    if st.button("Remove", key=f"rm_infer_{i}"):
-                        st.session_state.auto_inferred_goals.pop(i)
-                        st.rerun()
-                edits[i] = {"label": new_label, "description": new_desc}
-            st.session_state.auto_inferred_edits = edits
-
-            # Allow adding manual goals on top of inferred
-            st.markdown("**Add additional goals:**")
-            if "extra_goals" not in st.session_state:
-                st.session_state.extra_goals = []
-
-            for j, eg in enumerate(st.session_state.extra_goals):
-                ec1, ec2 = st.columns([5, 1])
-                with ec1:
-                    eg["label"] = st.text_input("Label", value=eg["label"], key=f"eg_label_{j}")
-                    eg["description"] = st.text_input("Description", value=eg.get("description", ""), key=f"eg_desc_{j}")
-                with ec2:
-                    if st.button("Remove", key=f"rm_eg_{j}"):
-                        st.session_state.extra_goals.pop(j)
-                        st.rerun()
-
-            if st.button("+ Add goal", key="add_extra_goal"):
-                st.session_state.extra_goals.append({"label": "", "description": ""})
-                st.rerun()
-
-            # Build final goals from inferred + extra
-            goals = []
-            for i, g in enumerate(inferred):
-                ed = edits.get(i, {})
-                lbl = ed.get("label", g["label"]).strip()
-                if lbl:
-                    goals.append({"id": f"goal_inf_{i}", "label": lbl,
-                                  "description": ed.get("description", ""), "auto_inferred": True})
-            for j, eg in enumerate(st.session_state.extra_goals):
-                if eg["label"].strip():
-                    goals.append({"id": f"goal_extra_{j}", "label": eg["label"].strip(),
-                                  "description": eg.get("description", ""), "auto_inferred": False})
-
-    # ── AI FROM DESCRIPTION ──────────────────
-    elif goal_input_mode == "Describe what you want (AI generates)":
-        user_desc = st.text_area(
-            "Describe your career goals in plain text",
-            placeholder="e.g. I want to become a Director of Product at a Series B AI startup working on enterprise SaaS...",
-            height=120,
-            key="goal_desc_input",
-        )
-        if st.button("Generate goals from description", key="gen_from_desc_btn"):
-            if user_desc.strip():
-                with st.spinner("Generating goals..."):
-                    combined = f"User description: {user_desc}\n\nResume:\n{st.session_state.resume_text[:2000]}"
-                    inferred = auto_infer_goals_from_resume(combined)
-                    st.session_state.auto_inferred_goals = inferred
-                    st.session_state.auto_inferred_edits = {
-                        i: {"label": g["label"], "description": g.get("description", "")}
-                        for i, g in enumerate(inferred)
-                    }
+    # "Add New Goal" button — toggles the creation panel
+    if not st.session_state.show_create_goal:
+        if st.button("+ Add New Goal", key="show_create_btn", use_container_width=False):
+            if not st.session_state.get("resume_text"):
+                st.warning("Upload a resume first.")
             else:
-                st.warning("Enter a description first.")
-
-        # Same review UI as auto-infer
-        if st.session_state.get("auto_inferred_goals"):
-            st.markdown("**Review and edit:**")
-            inferred = st.session_state.auto_inferred_goals
-            edits = st.session_state.get("auto_inferred_edits", {})
-            for i, g in enumerate(inferred):
-                c1, c2 = st.columns([5, 1])
-                with c1:
-                    new_label = st.text_input(
-                        f"Goal {i+1}", value=edits.get(i, {}).get("label", g["label"]),
-                        key=f"desc_label_{i}",
-                    )
-                    new_desc = st.text_input(
-                        "Description", value=edits.get(i, {}).get("description", ""),
-                        key=f"desc_desc_{i}",
-                    )
-                with c2:
-                    if st.button("Remove", key=f"rm_desc_{i}"):
-                        st.session_state.auto_inferred_goals.pop(i)
-                        st.rerun()
-                edits[i] = {"label": new_label, "description": new_desc}
-            st.session_state.auto_inferred_edits = edits
-            goals = [
-                {"id": f"goal_d_{i}", "label": edits.get(i, {}).get("label", g["label"]).strip(),
-                 "description": edits.get(i, {}).get("description", ""), "auto_inferred": True}
-                for i, g in enumerate(inferred)
-                if edits.get(i, {}).get("label", g["label"]).strip()
-            ]
-
-    # ── MANUAL ──────────────────────────────
-    else:
-        if "manual_goals" not in st.session_state:
-            st.session_state.manual_goals = [{"label": "", "description": ""}]
-
-        st.markdown("**Define your goals:**")
-        for i, mg in enumerate(st.session_state.manual_goals):
-            with st.container():
-                st.markdown(
-                    f"<div style='background:#ffffff; border:1px solid #e2e8f0; border-radius:8px; padding:12px; margin-bottom:8px;'>",
-                    unsafe_allow_html=True,
-                )
-                c1, c2 = st.columns([5, 1])
-                with c1:
-                    mg["label"] = st.text_input(
-                        f"Goal {i+1} name", value=mg["label"], key=f"mg_label_{i}",
-                        placeholder="e.g. Senior Product Manager role"
-                    )
-                    mg["description"] = st.text_area(
-                        "What does success look like?", value=mg.get("description", ""),
-                        key=f"mg_desc_{i}", height=70,
-                        placeholder="e.g. Leading a team of 5+ PMs at a B2B SaaS company in the AI space"
-                    )
-                with c2:
-                    st.write("")
-                    st.write("")
-                    if len(st.session_state.manual_goals) > 1:
-                        if st.button("Remove", key=f"rm_mg_{i}"):
-                            st.session_state.manual_goals.pop(i)
-                            st.rerun()
-                st.markdown("</div>", unsafe_allow_html=True)
-
-        col_add, col_clear = st.columns([1, 1])
-        with col_add:
-            if st.button("+ Add goal", key="add_manual_goal"):
-                st.session_state.manual_goals.append({"label": "", "description": ""})
-                st.rerun()
-        with col_clear:
-            if st.button("Clear all", key="clear_manual_goals"):
+                st.session_state.show_create_goal = True
+                # Reset any stale form state when opening
+                st.session_state.auto_inferred_goals = []
+                st.session_state.extra_goals = []
                 st.session_state.manual_goals = [{"label": "", "description": ""}]
                 st.rerun()
+    else:
+        # Creation panel — bordered container to visually match wireframe dialog
+        st.markdown(
+            """
+            <div style='border:1px solid #bfdbfe; border-radius:10px; padding:20px 20px 0 20px;
+                        background:#f8faff; margin-bottom:8px;'>
+            """,
+            unsafe_allow_html=True,
+        )
 
-        goals = [
-            {"id": f"goal_{i}", "label": mg["label"].strip(),
-             "description": mg.get("description", ""), "auto_inferred": False}
-            for i, mg in enumerate(st.session_state.manual_goals)
-            if mg["label"].strip()
-        ]
+        hc1, hc2 = st.columns([5, 1])
+        with hc1:
+            st.subheader("Create New Goal Set")
+        with hc2:
+            if st.button("✕ Close", key="close_create_btn"):
+                st.session_state.show_create_goal = False
+                st.session_state.auto_inferred_goals = []
+                st.rerun()
 
-    # ── Save button ──────────────────────────
-    st.divider()
-    can_create = bool(goals and goal_set_name and goal_set_name.strip())
+        _render_create_goal_panel()
 
-    if not goal_set_name:
-        st.caption("Enter a goal set name above.")
-    if not goals:
-        st.caption("Add at least one goal with a name.")
-
-    if can_create:
-        if st.button("Save Goal Set", use_container_width=True, key="create_gs_btn", type="primary"):
-            goal_set_id = str(uuid.uuid4())[:8]
-            goal_objects = [
-                Goal(
-                    id=g["id"], label=g["label"],
-                    description=g.get("description", ""),
-                    confidence="high",
-                    auto_inferred=g.get("auto_inferred", False),
-                )
-                for g in goals
-            ]
-            goal_set = GoalSet(
-                id=goal_set_id, name=goal_set_name.strip(),
-                goals=goal_objects, created_at=datetime.now(), is_active=False,
-            )
-            st.session_state.goal_sets[goal_set_id] = goal_set
-            # Reset form state
-            st.session_state.auto_inferred_goals = []
-            st.session_state.auto_inferred_edits = {}
-            st.session_state.manual_goals = [{"label": "", "description": ""}]
-            st.session_state.extra_goals = []
-            save_goal_sets(st.session_state.goal_sets, st.session_state.active_goal_set_id)
-            st.success(f'Saved "{goal_set_name.strip()}". Activate it above to use it in analysis.')
-            st.rerun()
+        st.markdown("</div>", unsafe_allow_html=True)

@@ -50,7 +50,7 @@ def write_json(file_path, data):
 
 
 # -------------------------
-# Goals Persistence
+# Metrics Persistence
 # -------------------------
 
 def save_goals(goals):
