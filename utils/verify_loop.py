@@ -2,8 +2,8 @@
 
 import json
 from typing import Dict, Any, List
-from utils.openai_helper import call_ollama_json
-from utils.models import VerifyAttempt
+from analyser.launchpad.utils.openai_helper import call_ollama_json
+from analyser.launchpad.utils.models import VerifyAttempt
 from datetime import datetime
 
 

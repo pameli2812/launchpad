@@ -6,12 +6,12 @@ import hashlib
 from datetime import datetime
 from io import BytesIO
 
-from utils.jd_extraction import extract_jd
-from utils.scorecard import analyze_scorecard
-from utils.resume_suggestions import generate_resume_suggestions
-from utils.models import HistoryEntry
-from utils.storage import write_json
-from utils.pdf_viewer import get_uploaded_pdfs, load_pdf_bytes
+from analyser.launchpad.utils.jd_extraction import extract_jd
+from analyser.launchpad.utils.scorecard import analyze_scorecard
+from analyser.launchpad.utils.resume_suggestions import generate_resume_suggestions
+from analyser.launchpad.utils.models import HistoryEntry
+from analyser.launchpad.utils.storage import write_json
+from analyser.launchpad.utils.pdf_viewer import get_uploaded_pdfs, load_pdf_bytes
 
 
 HISTORY_FILE = "data/history.json"
@@ -65,7 +65,7 @@ def _ensure_resume_library():
             name = pdf_info["name"]
             try:
                 pdf_bytes = load_pdf_bytes(pdf_info["path"])
-                from utils.parser import extract_text_from_pdf
+                from analyser.launchpad.utils.parser import extract_text_from_pdf
                 text = extract_text_from_pdf(BytesIO(pdf_bytes))
                 st.session_state.resume_library[name] = {"text": text, "pdf_bytes": pdf_bytes}
             except Exception:
@@ -78,8 +78,8 @@ def _ensure_resume_library():
 
 def _ensure_goal_sets():
     if not st.session_state.get("goal_sets"):
-        from utils.storage import read_json
-        from utils.models import Goal, GoalSet
+        from analyser.launchpad.utils.storage import read_json
+        from analyser.launchpad.utils.models import Goal, GoalSet
         data = read_json("data/goal_sets.json", default={"goal_sets": [], "active_goal_set_id": None})
         goal_sets = {}
         for gs in data.get("goal_sets", []):

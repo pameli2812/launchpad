@@ -2,7 +2,7 @@
 
 import streamlit as st
 from datetime import datetime
-from utils.storage import load_history, write_json
+from analyser.launchpad.utils.storage import load_history, write_json
 
 HISTORY_FILE = "data/history.json"
 

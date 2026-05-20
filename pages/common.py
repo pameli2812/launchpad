@@ -1,10 +1,10 @@
 """Common components and utilities."""
 
 import streamlit as st
-from utils.pdf_viewer import extract_pdf_text_preview
+from analyser.launchpad.utils.pdf_viewer import extract_pdf_text_preview
 
 try:
-    from utils.pdf_viewer import convert_pdf_to_images
+    from analyser.launchpad.utils.pdf_viewer import convert_pdf_to_images
     HAS_PDF2IMAGE = True
 except Exception:
     HAS_PDF2IMAGE = False

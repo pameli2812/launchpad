@@ -6,16 +6,16 @@ from datetime import datetime
 from io import BytesIO
 from pathlib import Path
 
-from utils.parser import extract_text_from_pdf, extract_text_from_docx
-from utils.goal_inference import auto_infer_goals_from_resume
-from utils.pdf_viewer import (
+from analyser.launchpad.utils.parser import extract_text_from_pdf, extract_text_from_docx
+from analyser.launchpad.utils.goal_inference import auto_infer_goals_from_resume
+from analyser.launchpad.utils.pdf_viewer import (
     save_pdf_locally,
     get_uploaded_pdfs,
     load_pdf_bytes,
     delete_pdf,
 )
-from utils.models import Goal, GoalSet
-from utils.storage import write_json, read_json
+from analyser.launchpad.utils.models import Goal, GoalSet
+from analyser.launchpad.utils.storage import write_json, read_json
 
 
 GOAL_SETS_FILE = "data/goal_sets.json"

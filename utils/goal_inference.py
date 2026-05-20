@@ -3,7 +3,7 @@
 import json
 import re
 from typing import List, Dict, Any
-from utils.openai_helper import call_ollama_json
+from analyser.launchpad.utils.openai_helper import call_ollama_json
 
 
 def auto_infer_goals_from_resume(resume_text: str) -> List[Dict[str, Any]]:

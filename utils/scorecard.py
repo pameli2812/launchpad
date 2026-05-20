@@ -2,8 +2,8 @@
 
 import json
 from typing import List, Dict, Any
-from utils.openai_helper import call_ollama_json
-from utils.models import Scorecard, ScoreDetail
+from analyser.launchpad.utils.openai_helper import call_ollama_json
+from analyser.launchpad.utils.models import Scorecard, ScoreDetail
 
 
 def analyze_scorecard(

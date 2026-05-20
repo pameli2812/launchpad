@@ -5,11 +5,11 @@ import uuid
 import hashlib
 from datetime import datetime
 
-from utils.jd_extraction import extract_jd
-from utils.scorecard import analyze_scorecard
-from utils.resume_suggestions import generate_resume_suggestions
-from utils.models import HistoryEntry
-from utils.storage import write_json
+from analyser.launchpad.utils.jd_extraction import extract_jd
+from analyser.launchpad.utils.scorecard import analyze_scorecard
+from analyser.launchpad.utils.resume_suggestions import generate_resume_suggestions
+from analyser.launchpad.utils.models import HistoryEntry
+from analyser.launchpad.utils.storage import write_json
 
 
 HISTORY_FILE = "data/history.json"

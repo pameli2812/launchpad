@@ -4,11 +4,11 @@ import streamlit as st
 import hashlib
 from typing import Optional
 
-from utils.models import GoalSet
-from pages.setup.setup import render_setup_tab
-from pages.analyse.analyse import render_analyse_tab
-from pages.history.history import render_history_tab
-from pages.common import render_pdf_modal
+from analyser.launchpad.utils.models import GoalSet
+from analyser.launchpad.pages.setup.setup import render_setup_tab
+from analyser.launchpad.pages.analyse.analyse import render_analyse_tab
+from analyser.launchpad.pages.history.history import render_history_tab
+from analyser.launchpad.pages.common import render_pdf_modal
 
 
 st.set_page_config(

@@ -2,7 +2,7 @@
 
 import json
 from typing import Dict, Any
-from utils.openai_helper import call_ollama_json
+from analyser.launchpad.utils.openai_helper import call_ollama_json
 
 
 def extract_jd(jd_text: str, url: str = None) -> Dict[str, Any]:

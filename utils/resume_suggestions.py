@@ -2,7 +2,7 @@
 
 import json
 from typing import Dict, Any, List
-from utils.openai_helper import call_ollama_json
+from analyser.launchpad.utils.openai_helper import call_ollama_json
 
 
 def generate_resume_suggestions(
