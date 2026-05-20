@@ -80,24 +80,40 @@
             ]
         },
         {
-            "id": "312fbed6",
-            "name": "Test",
-            "created_at": "2026-05-19T12:06:20.286887",
-            "is_active": false,
+            "id": "x0myurd9",
+            "name": "TESTER",
             "goals": [
                 {
-                    "id": "goal_ai_a87298cd",
-                    "label": "Senior/Leadership Role",
-                    "description": "Progress to senior individual contributor or management role",
+                    "id": "goal_h9i4mmld",
+                    "label": "Product Leadership in B2B SaaS and Enterprise Software",
+                    "description": "Leading cross-functional teams in product management, focusing on B2B SaaS and enterprise software domains.",
+                    "confidence": "high",
                     "auto_inferred": true
                 },
                 {
-                    "id": "goal_ai_68fc88ab",
-                    "label": "Competitive Compensation",
-                    "description": "Achieve market-competitive salary and benefits",
+                    "id": "goal_ahpfnn78",
+                    "label": "AI Product Development and Transformation",
+                    "description": "Specializing in the development of AI-native products, including Generative AI, Retrieval-Augmented Generation (RAG), Agentic AI workflows, and Machine Learning solutions.",
+                    "confidence": "high",
+                    "auto_inferred": true
+                },
+                {
+                    "id": "goal_usx823ro",
+                    "label": "Data-Driven Decision Making and Product Optimization",
+                    "description": "Leveraging data analytics tools like Amplitude to track user activity, build behavioral dashboards, and drive data-informed product decisions.",
+                    "confidence": "high",
+                    "auto_inferred": true
+                },
+                {
+                    "id": "goal_jvgdymbv",
+                    "label": "Business Development and Customer Relationship Management",
+                    "description": "Driving business development, optimizing the lead pipeline, enhancing customer relationships by addressing use cases, and delivering tailored marketing materials.",
+                    "confidence": "high",
                     "auto_inferred": true
                 }
-            ]
+            ],
+            "is_active": false,
+            "created_at": "2026-05-20T16:07:57.260046"
         }
     ]
 }

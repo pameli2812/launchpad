@@ -63,5 +63,280 @@
                 }
             ]
         }
+    },
+    {
+        "jd_id": "038fecf2",
+        "analyzed_at": "2026-05-20T16:21:59.823027",
+        "goal_set_id": "c14ef3e6",
+        "goal_set_name": "Director of product",
+        "goal_set_snapshot": [
+            {
+                "id": "goal_1",
+                "label": "product",
+                "description": "test",
+                "auto_inferred": false
+            },
+            {
+                "id": "goal_2",
+                "label": "senior product manager",
+                "description": "test",
+                "auto_inferred": false
+            }
+        ],
+        "resume_id": "Yash_V_momentum.pdf",
+        "resume_snapshot_hash": "67966bab3f8a",
+        "scorecard": {
+            "scores": [
+                {
+                    "goal_id": "goal_1",
+                    "dimension": "seniority",
+                    "score": 9.0,
+                    "remark": "You have a strong level of seniority as a Director, which aligns well with the 'Senior Product Manager' goal."
+                },
+                {
+                    "goal_id": "goal_1",
+                    "dimension": "domain",
+                    "score": 8.0,
+                    "remark": "Your extensive experience in product management across B2B SaaS, FinTech, and enterprise analytics demonstrates a broad domain expertise relevant to the 'product' goal."
+                },
+                {
+                    "goal_id": "goal_1",
+                    "dimension": "tools",
+                    "score": 8.5,
+                    "remark": "Your proficiency in tools such as Jira, Confluence, Amplitude, Figma, Miro, Balsamiq, MS Office, PowerBI, Tableau, Postman, GitHub, and GitLab is impressive."
+                },
+                {
+                    "goal_id": "goal_1",
+                    "dimension": "technical_skills",
+                    "score": 7.5,
+                    "remark": "Your technical skills in Generative AI, Agentic AI workflows, Retrieval-Augmented Generation (RAG), Product Roadmaps, Feature Prioritization, Go-to-Market Strategy, Machine Learning solutions, and SQL are strong, but your knowledge of Python and Postgres could be strengthened to better align with the 'product' goal."
+                },
+                {
+                    "goal_id": "goal_2",
+                    "dimension": "seniority",
+                    "score": 8.5,
+                    "remark": "Your current position as a Director of Product Management is senior and directly relevant to the 'Senior Product Manager' goal."
+                },
+                {
+                    "goal_id": "goal_2",
+                    "dimension": "domain",
+                    "score": 8.5,
+                    "remark": "Your experience in product management across various industries (B2B SaaS, FinTech, and enterprise analytics) aligns well with the 'senior product manager' goal."
+                },
+                {
+                    "goal_id": "goal_2",
+                    "dimension": "leadership",
+                    "score": 8.5,
+                    "remark": "Your leadership experience in managing cross-functional teams and leading the launch of Kelp Global demonstrates your ability to lead and excel at a senior level."
+                },
+                {
+                    "goal_id": "goal_2",
+                    "dimension": "tools",
+                    "score": 8.0,
+                    "remark": "Your proficiency in tools such as Jira, Confluence, Amplitude, Figma, Miro, Balsamiq, MS Office, PowerBI, Tableau, Postman, GitHub, and GitLab is impressive, although a more specific focus on tools commonly used in the recruitment domain would be beneficial."
+                }
+            ],
+            "overall_fit": 8.57,
+            "verdict": "borderline",
+            "summary": "Your extensive experience in product management and leadership across various industries, coupled with your proficiency in a wide range of tools, positions you well for the 'product' and 'senior product manager' goals. However, to better align with these goals, it would be beneficial to strengthen your technical skills in Python and Postgres, as well as focus more on recruitment-specific tools. The opportunity at Duolingo could provide an excellent platform to develop these competencies while partnering directly with senior leaders to build and shape a product organization.",
+            "gaps": []
+        },
+        "verdict": "borderline",
+        "overall_fit": 8.57,
+        "status": "pending",
+        "changes_generated": false,
+        "jd_title": "Lead Recruiter",
+        "company": "Duolingo",
+        "url": null,
+        "suggestions": null
+    },
+    {
+        "jd_id": "e005bd91",
+        "analyzed_at": "2026-05-20T17:27:01.239669",
+        "goal_set_id": "ddaa91d1",
+        "goal_set_name": "Director of product",
+        "goal_set_snapshot": [
+            {
+                "id": "goal_1",
+                "label": "product",
+                "description": "test",
+                "auto_inferred": false
+            }
+        ],
+        "resume_id": "Yash_V_momentum.pdf",
+        "resume_snapshot_hash": "67966bab3f8a",
+        "scorecard": {
+            "scores": [
+                {
+                    "goal_id": "goal_1",
+                    "dimension": "domain",
+                    "score": 8.0,
+                    "remark": "The resume demonstrates extensive experience in product management, specifically in AI-native product development across B2B SaaS, FinTech, and enterprise analytics."
+                },
+                {
+                    "goal_id": "goal_1",
+                    "dimension": "seniority",
+                    "score": 9.0,
+                    "remark": "The candidate's current role as Director of Product Management at Contify indicates high-level product leadership experience."
+                },
+                {
+                    "goal_id": "goal_1",
+                    "dimension": "tools",
+                    "score": 7.0,
+                    "remark": "The candidate lists proficiency in various tools such as Jira, Confluence, Amplitude, Figma, Miro, Balsamiq, MS Office - Excel, PowerPoint, PowerBI, Tableau, Postman, GitHub, and GitLab."
+                },
+                {
+                    "goal_id": "goal_1",
+                    "dimension": "skills",
+                    "score": 9.0,
+                    "remark": "The candidate possesses strong skills in Product Lifecycle Management, Generative AI, Agentic AI Workflows, Retrieval-Augmented Generation (RAG), Product Roadmaps, Feature Prioritization, Go-to-Market Strategy, Machine Learning solutions, Agile - Scrum, Cross-Functional Leadership, Enterprise Software, API Integrations."
+                },
+                {
+                    "goal_id": "goal_1",
+                    "dimension": "certification",
+                    "score": 0.0,
+                    "remark": "No certifications were listed on the resume."
+                },
+                {
+                    "goal_id": "goal_1",
+                    "dimension": "soft_skills",
+                    "score": 8.0,
+                    "remark": "The candidate demonstrates strong cross-functional leadership and data-driven decision making skills."
+                },
+                {
+                    "goal_id": "goal_1",
+                    "dimension": "tooling",
+                    "score": 7.0,
+                    "remark": "The candidate lists proficiency in SQL, Python, Postgres."
+                },
+                {
+                    "goal_id": "goal_1",
+                    "dimension": "language",
+                    "score": 8.0,
+                    "remark": "While the language was not explicitly listed on the resume, the candidate's educational background suggests English proficiency."
+                },
+                {
+                    "goal_id": "goal_1",
+                    "dimension": "location",
+                    "score": 2.0,
+                    "remark": "The candidate's current location is Gurugram, India, which may not align with the JD's requirement of onsite work in New York, NY."
+                },
+                {
+                    "goal_id": "goal_1",
+                    "dimension": "data_fluency",
+                    "score": 9.0,
+                    "remark": "The candidate leveraged Amplitude to track user activity and build behavioral dashboards for data-informed product decisions."
+                },
+                {
+                    "goal_id": "goal_1",
+                    "dimension": "comfort_with_ambiguity",
+                    "score": 8.0,
+                    "remark": "The candidate led the launch of Kelp Global, transforming deal sourcing and portfolio management for global private equity firms, indicating comfort with ambiguity."
+                },
+                {
+                    "goal_id": "goal_1",
+                    "dimension": "recruiting_experience",
+                    "score": 0.0,
+                    "remark": "The candidate's background is primarily in product management and does not demonstrate the required 7+ years of full-cycle recruiting experience."
+                }
+            ],
+            "overall_fit": 5.0,
+            "verdict": "borderline",
+            "summary": "",
+            "gaps": []
+        },
+        "verdict": "borderline",
+        "overall_fit": 5.0,
+        "status": "pending",
+        "changes_generated": false,
+        "jd_title": "Lead Recruiter",
+        "company": "Duolingo",
+        "url": null,
+        "suggestions": null
+    },
+    {
+        "jd_id": "961c2bdb",
+        "analyzed_at": "2026-05-20T17:41:24.170770",
+        "goal_set_id": "ddaa91d1",
+        "goal_set_name": "Director of product",
+        "goal_set_snapshot": [
+            {
+                "id": "goal_1",
+                "label": "product",
+                "description": "test",
+                "auto_inferred": false
+            }
+        ],
+        "resume_id": "Yash_V_momentum_revised_20260520_173126.pdf",
+        "resume_snapshot_hash": "80af97049bcd",
+        "scorecard": {
+            "scores": [
+                {
+                    "goal_id": "goal_1",
+                    "dimension": "domain_expertise",
+                    "score": 9.0,
+                    "remark": "You have extensive experience in product management across multiple industries and a strong focus on AI-native product development. This aligns closely with the 'Product' goal."
+                },
+                {
+                    "goal_id": "goal_1",
+                    "dimension": "seniority",
+                    "score": 8.0,
+                    "remark": "As a Director of Product Management, you have demonstrated leadership in cross-functional teams and strategic alignment with business outcomes, which is relevant to the senior role at Duolingo."
+                },
+                {
+                    "goal_id": "goal_1",
+                    "dimension": "technical_skills",
+                    "score": 8.0,
+                    "remark": "Your expertise in Generative AI (GenAI), Agentic AI Workflows, Retrieval-Augmented Generation (RAG), and other relevant tools like Jira, Confluence, Amplitude, Figma, Miro, Balsamiq, MS Office, PowerBi, Tableau, Postman, GitHub & GitLab, SQL, Python, Postgres supports your 'Product' goal."
+                },
+                {
+                    "goal_id": "goal_1",
+                    "dimension": "soft_skills",
+                    "score": 7.0,
+                    "remark": "Your ability to lead cross-functional teams, partner closely with senior leaders, and work in ambiguous situations are strong assets for the 'Product' goal."
+                },
+                {
+                    "goal_id": "goal_1",
+                    "dimension": "domain_knowledge",
+                    "score": 7.0,
+                    "remark": "You have experience in product management across B2B SaaS, FinTech, and enterprise analytics, which is relevant to Duolingo's product domain."
+                },
+                {
+                    "goal_id": "goal_1",
+                    "dimension": "gap_analysis",
+                    "score": 6.0,
+                    "remark": "There seems to be a lack of direct recruiting experience, which may impact your ability to 'own full-cycle recruiting for Product roles at all levels' as per the JD. However, your leadership and team management skills can potentially compensate for this gap."
+                },
+                {
+                    "goal_id": "goal_1",
+                    "dimension": "location",
+                    "score": 5.0,
+                    "remark": "The JD requires onsite work in New York, NY. You are currently based in India, which may not align with the location policy."
+                }
+            ],
+            "overall_fit": 7.43,
+            "verdict": "borderline",
+            "summary": "Your extensive experience in AI-native product development and leadership roles across multiple industries make you a strong fit for a senior role within the 'Product' domain. However, you lack direct recruiting experience, and the location policy may not align with your current base. Your single biggest strength lies in your deep expertise in GenAI, RAG, and Agentic AI workflows, demonstrated by launching Ask Athena and driving a 20% increase in feature adoption across enterprise users at Contify. A significant gap is the lack of direct recruiting experience, which may impact your ability to 'own full-cycle recruiting for Product roles at all levels' as per the JD. One interview risk you should be aware of is addressing the location policy and discussing any potential relocation plans.",
+            "gaps": [
+                {
+                    "type": "Skills Gap",
+                    "details": "Lack of direct recruiting experience",
+                    "criticality": "High"
+                },
+                {
+                    "type": "Location Gap",
+                    "details": "Currently based in India, while the JD requires onsite work in New York, NY",
+                    "criticality": "High"
+                }
+            ]
+        },
+        "verdict": "borderline",
+        "overall_fit": 7.43,
+        "status": "pending",
+        "changes_generated": false,
+        "jd_title": "Lead Recruiter",
+        "company": "Duolingo",
+        "url": null,
+        "suggestions": null
     }
 ]

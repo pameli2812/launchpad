@@ -36,34 +36,30 @@ def save_pdf_locally(
     filename: str
 ) -> str:
     """
-    Save PDF locally keeping original filename.
-    If same name uploaded multiple times, create versioned copies.
+    Save PDF locally preserving the original filename (including spaces).
+    If the same name is uploaded again, append a timestamp suffix so users
+    can tell duplicates apart by upload time.
     """
 
     try:
+        # Only strip path separators / control chars — keep spaces & unicode
         safe_name = "".join(
             c for c in filename
-            if c.isalnum()
-            or c in ("-", "_", ".")
-        )
+            if c not in ("/", "\\", "\x00")
+            and (c.isprintable() or c == " ")
+        ).strip()
 
-        if not safe_name.endswith(".pdf"):
+        if not safe_name.lower().endswith(".pdf"):
             safe_name += ".pdf"
 
-        # Split name and extension
-        name_parts = safe_name.rsplit(".", 1)
-        base_name = name_parts[0]
-        extension = name_parts[1]
+        base_name, extension = safe_name.rsplit(".", 1)
 
-        # Create versioned filename if file exists
         file_path = UPLOAD_DIR / safe_name
-        counter = 1
-        
-        while file_path.exists():
-            # Add version number before extension
-            versioned_name = f"{base_name}_v{counter}.{extension}"
+
+        if file_path.exists():
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            versioned_name = f"{base_name}_{timestamp}.{extension}"
             file_path = UPLOAD_DIR / versioned_name
-            counter += 1
 
         with open(file_path, "wb") as f:
             f.write(pdf_bytes)

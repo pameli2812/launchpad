@@ -1,10 +1,20 @@
 """Verify loop - Compare original vs updated resume."""
 
 import json
-from typing import Dict, Any, List
-from utils.openai_helper import call_ollama_json
-from utils.models import VerifyAttempt
 from datetime import datetime
+from typing import Any, Dict, List
+
+try:
+    from launchpad.utils.openai_helper import call_llm_json
+except ImportError:
+    from utils.openai_helper import call_llm_json
+
+try:
+    from launchpad.utils.scorecard import SCORING_SYSTEM, build_context_block
+except ImportError:
+    from utils.scorecard import SCORING_SYSTEM, build_context_block
+
+from launchpad.utils.models import VerifyAttempt
 
 
 def verify_and_rescore(
@@ -12,51 +22,52 @@ def verify_and_rescore(
     resume_updated: str,
     jd_json: Dict[str, Any],
     goals: List[Dict[str, Any]],
-    attempt_number: int = 1
+    attempt_number: int = 1,
 ) -> VerifyAttempt:
-    """Compare original vs updated resume and rescore."""
-    
-    goals_str = json.dumps(goals, indent=2)
-    jd_str = json.dumps(jd_json, indent=2)
-    
-    verdict_constraint = "must be 'good_to_proceed' or 'apply_with_caveats' — close the loop" if attempt_number == 2 else ""
-    
-    prompt = f"""System:
-Compare a revised resume against the original for this JD and goals.
-Output a score delta and a verdict. Be direct — no encouragement.
+    """Compare original vs updated resume and rescore.
+
+    Cached prefix is the same `resume_original + JD + goals` block used by
+    scorecard/suggestions, so the third call in an analysis pipeline hits the cache.
+    The updated resume is part of the volatile task slot (it differs per attempt).
+    """
+
+    cached_context = build_context_block(resume_original, jd_json, goals)
+
+    verdict_constraint = (
+        "must be 'good_to_proceed' or 'apply_with_caveats' — close the loop"
+        if attempt_number >= 2
+        else "use the verdict that genuinely fits"
+    )
+
+    task = f"""TASK: Compare the revised resume against the original (in the context block above) for the same JD and goals.
 
 Rules:
-- Score both versions against the same JD and goals independently.
+- Score both versions against the JD and goals independently.
 - Identify which specific gaps were closed and which remain.
-- If attempt_number is 2, close the loop: verdict {verdict_constraint}
-- Output ONLY valid JSON. No markdown.
+- attempt_number {attempt_number}: verdict {verdict_constraint}.
+- Be direct — no encouragement.
 
-Schema:
+Output JSON schema:
 {{
   "score_before": number,
   "score_after": number,
   "delta": number,
-  "gaps_closed": string[],
-  "gaps_remaining": string[],
+  "gaps_closed": [str],
+  "gaps_remaining": [str],
   "verdict": "good_to_proceed"|"apply_with_caveats"|"needs_more_work",
-  "verdict_message": string,
+  "verdict_message": str,
   "attempt_number": number
 }}
 
-Goals: {goals_str}
-
-JD: {jd_str}
-
-Resume v1 (original): {resume_original}
-
-Resume v2 (updated): {resume_updated}
+=== RESUME V2 (UPDATED) ===
+{resume_updated}
 
 Attempt number: {attempt_number}"""
 
     try:
-        result = call_ollama_json(prompt)
+        result = call_llm_json(cached_context, task, system=SCORING_SYSTEM)
         result_json = json.loads(result)
-        
+
         return VerifyAttempt(
             attempt_number=attempt_number,
             score_before=float(result_json.get("score_before", 5.0)),
@@ -66,7 +77,7 @@ Attempt number: {attempt_number}"""
             gaps_remaining=result_json.get("gaps_remaining", []),
             verdict=result_json.get("verdict", "needs_more_work"),
             verdict_message=result_json.get("verdict_message", ""),
-            timestamp=datetime.now()
+            timestamp=datetime.now(),
         )
     except Exception:
         return VerifyAttempt(
@@ -77,6 +88,6 @@ Attempt number: {attempt_number}"""
             gaps_closed=[],
             gaps_remaining=[],
             verdict="needs_more_work",
-            verdict_message="Unable to verify due to API issues",
-            timestamp=datetime.now()
+            verdict_message="Unable to verify — all LLM providers unavailable.",
+            timestamp=datetime.now(),
         )

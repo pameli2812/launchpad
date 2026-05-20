@@ -3,7 +3,11 @@
 import json
 import re
 from typing import List, Dict, Any
-from utils.openai_helper import call_ollama_json
+
+try:
+    from launchpad.utils.openai_helper import call_ollama_json
+except ImportError:
+    from utils.openai_helper import call_ollama_json
 
 
 def auto_infer_goals_from_resume(resume_text: str) -> List[Dict[str, Any]]:
