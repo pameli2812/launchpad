@@ -517,43 +517,54 @@ function CreateGoalPanel({
                 </span>
               )}
             </label>
-            <div className="space-y-2">
+            <div className="rounded-lg border border-slate-200 overflow-hidden">
+              {/* Table header */}
+              <div className="grid grid-cols-[2rem_1fr_1.6fr_2rem] bg-slate-50 border-b border-slate-200 px-3 py-2 gap-3">
+                <span className="text-xs font-semibold text-slate-400 text-center">#</span>
+                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Metric Name</span>
+                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Description</span>
+                <span />
+              </div>
+              {/* Metric rows */}
               {metrics.map((m, idx) => (
                 <div
                   key={m.id}
-                  className="bg-white border border-slate-200 rounded-lg p-3 flex gap-3 items-start"
+                  className={`grid grid-cols-[2rem_1fr_1.6fr_2rem] items-center gap-3 px-3 py-2 ${
+                    idx !== metrics.length - 1 ? 'border-b border-slate-100' : ''
+                  } ${m.autoInferred ? 'bg-blue-50/30' : 'bg-white'} hover:bg-slate-50/60 transition-colors`}
                 >
-                  <span className="text-slate-400 text-sm mt-2 w-6 text-right">{idx + 1}.</span>
-                  <div className="flex-1 space-y-2">
-                    <input
-                      value={m.label}
-                      onChange={(e) => handleUpdateMetric(m.id, { label: e.target.value })}
-                      placeholder="Metric name (e.g. Senior PM at an AI-first company)"
-                      className="w-full px-3 py-1.5 border border-slate-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                    />
-                    <input
-                      value={m.description}
-                      onChange={(e) => handleUpdateMetric(m.id, { description: e.target.value })}
-                      placeholder="Description (what does success look like?)"
-                      className="w-full px-3 py-1.5 border border-slate-200 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                    />
-                  </div>
+                  <span className="text-slate-400 text-xs text-center font-medium">{idx + 1}</span>
+                  <input
+                    value={m.label}
+                    onChange={(e) => handleUpdateMetric(m.id, { label: e.target.value })}
+                    placeholder="e.g. Seniority Match"
+                    className="w-full px-2.5 py-1.5 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm bg-white"
+                  />
+                  <input
+                    value={m.description}
+                    onChange={(e) => handleUpdateMetric(m.id, { description: e.target.value })}
+                    placeholder="What evidence supports this axis?"
+                    className="w-full px-2.5 py-1.5 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm bg-white"
+                  />
                   <button
                     onClick={() => handleRemoveMetric(m.id)}
-                    className="text-slate-400 hover:text-red-600 p-1"
+                    className="text-slate-300 hover:text-red-500 transition-colors flex items-center justify-center"
                     aria-label="Remove metric"
                   >
-                    <X className="w-4 h-4" />
+                    <X className="w-3.5 h-3.5" />
                   </button>
                 </div>
               ))}
+              {/* Add row */}
+              <div className="px-3 py-2 border-t border-slate-100 bg-slate-50/50">
+                <button
+                  onClick={handleAddMetric}
+                  className="text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1"
+                >
+                  <span className="text-base leading-none">+</span> Add metric
+                </button>
+              </div>
             </div>
-            <button
-              onClick={handleAddMetric}
-              className="mt-2 text-sm text-blue-600 hover:text-blue-700 font-medium"
-            >
-              + Add metric
-            </button>
           </div>
         )}
 

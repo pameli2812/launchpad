@@ -1,35 +1,15 @@
 {
-    "active_goal_set_id": "ddaa91d1",
+    "active_goal_set_id": "25f36dfa",
     "goal_sets": [
         {
             "id": "ddaa91d1",
             "name": "Director of product",
             "created_at": "2026-05-17T12:00:05.740088",
-            "is_active": true,
-            "goals": [
-                {
-                    "id": "goal_1",
-                    "label": "product",
-                    "description": "test",
-                    "auto_inferred": false
-                }
-            ]
-        },
-        {
-            "id": "c14ef3e6",
-            "name": "Director of product",
-            "created_at": "2026-05-17T12:00:39.777824",
             "is_active": false,
             "goals": [
                 {
                     "id": "goal_1",
                     "label": "product",
-                    "description": "test",
-                    "auto_inferred": false
-                },
-                {
-                    "id": "goal_2",
-                    "label": "senior product manager",
                     "description": "test",
                     "auto_inferred": false
                 }
@@ -39,7 +19,7 @@
             "id": "25f36dfa",
             "name": "International Roles",
             "created_at": "2026-05-17T19:27:48.633369",
-            "is_active": false,
+            "is_active": true,
             "goals": [
                 {
                     "id": "goal_d_0",
@@ -78,42 +58,6 @@
                     "auto_inferred": true
                 }
             ]
-        },
-        {
-            "id": "x0myurd9",
-            "name": "TESTER",
-            "goals": [
-                {
-                    "id": "goal_h9i4mmld",
-                    "label": "Product Leadership in B2B SaaS and Enterprise Software",
-                    "description": "Leading cross-functional teams in product management, focusing on B2B SaaS and enterprise software domains.",
-                    "confidence": "high",
-                    "auto_inferred": true
-                },
-                {
-                    "id": "goal_ahpfnn78",
-                    "label": "AI Product Development and Transformation",
-                    "description": "Specializing in the development of AI-native products, including Generative AI, Retrieval-Augmented Generation (RAG), Agentic AI workflows, and Machine Learning solutions.",
-                    "confidence": "high",
-                    "auto_inferred": true
-                },
-                {
-                    "id": "goal_usx823ro",
-                    "label": "Data-Driven Decision Making and Product Optimization",
-                    "description": "Leveraging data analytics tools like Amplitude to track user activity, build behavioral dashboards, and drive data-informed product decisions.",
-                    "confidence": "high",
-                    "auto_inferred": true
-                },
-                {
-                    "id": "goal_jvgdymbv",
-                    "label": "Business Development and Customer Relationship Management",
-                    "description": "Driving business development, optimizing the lead pipeline, enhancing customer relationships by addressing use cases, and delivering tailored marketing materials.",
-                    "confidence": "high",
-                    "auto_inferred": true
-                }
-            ],
-            "is_active": false,
-            "created_at": "2026-05-20T16:07:57.260046"
         }
     ]
 }

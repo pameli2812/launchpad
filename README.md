@@ -73,6 +73,12 @@ pip install -r app/backend/requirements.txt
 
 Create a `.env` file at the repo root (or inside `app/backend/`) with at least one provider configured:
 
+# macOS
+brew install tesseract
+
+# Ubuntu / Debian
+apt-get install tesseract-ocr
+
 ```sh
 # Provider chain — comma-separated, tried in order. Omit providers you don't use.
 LLM_PROVIDERS=anthropic,openai,ollama
@@ -175,3 +181,36 @@ The React app will be available at `http://localhost:3000`. The Vite dev server 
 ## License
 
 MIT (or your preferred license — update this section).
+curl -X POST http://localhost:8000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"user@example.com","password":"password123"}'
+
+  curl -X POST http://localhost:8000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"user@example.com","password":"password123"}'
+
+  Option 1: Admin CLI (fastest)
+  python admin_tools.py generate yashvijaivargiya@gmail.com
+
+Copy the key it returns and test:
+curl -X GET 'http://localhost:8000/api/analyze/pending-outreach' \
+  -H 'x-api-key: <PASTE_THE_KEY_HERE>'
+
+Option 2: Via API (user self-service)
+# 1. Login
+curl -X POST http://localhost:8000/api/auth/login \
+  -d '{"email":"yashvijaivargiya@gmail.com","password":"..."}'
+
+# 2. Create key
+curl -X POST http://localhost:8000/api/settings/automation-api-keys \
+  -H "Authorization: Bearer <JWT_TOKEN>"
+
+# 3. Copy the returned key and test
+
+Expected response after using real key:
+✅ 200 OK
+{"pending": [...]}
+
+For n8n, configure the header:
+  X-API-Key: q73GUrjOydieuh5QwkW6x74dvZkAH9If
+[DB] Pool closed

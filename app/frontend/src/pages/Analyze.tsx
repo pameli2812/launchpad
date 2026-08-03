@@ -1,10 +1,14 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   useResumes,
   useGoalSets,
   useRunAnalysis,
   useGetSuggestions,
   useApplySuggestions,
+  usePendingImports,
+  useConsumeImport,
+  useDismissImport,
+  type PendingImport,
 } from '@/hooks'
 import { analyzeAPI } from '@/api/client'
 import { Button, Card } from '@/components/UI'
@@ -18,6 +22,11 @@ import {
   RotateCcw,
   Download,
   FileCheck,
+  Link,
+  Image,
+  FileText,
+  X,
+  Pencil,
 } from 'lucide-react'
 
 type Resume = { name: string; size: number; modified: string }
@@ -46,6 +55,81 @@ type Suggestions = {
   polish?: any[]
 }
 
+type JdQueueItem = {
+  id: string
+  title: string      // first non-empty line of the JD, used as display label
+  text: string
+  addedAt: string    // ISO timestamp
+}
+
+const JD_QUEUE_KEY = 'launchpad_jd_queue'
+
+function loadQueue(): JdQueueItem[] {
+  try {
+    return JSON.parse(localStorage.getItem(JD_QUEUE_KEY) ?? '[]')
+  } catch { return [] }
+}
+
+function saveQueue(q: JdQueueItem[]) {
+  localStorage.setItem(JD_QUEUE_KEY, JSON.stringify(q))
+}
+
+// Defined outside the component so the interval closure always captures the
+// same reference and the array is never recreated on re-render.
+const LOADING_STEPS = [
+  { p: 10,  msg: "Reading resume content…" },
+  { p: 30,  msg: "Extracting JD requirements…" },
+  { p: 60,  msg: "AI comparing dimensions…" },
+  { p: 85,  msg: "Calculating final scores…" },
+  { p: 98,  msg: "Almost there…" },
+]
+
+const SUGGESTIONS_STEPS = [
+  { p: 15,  msg: "Reading your resume…" },
+  { p: 40,  msg: "Mapping gaps to JD requirements…" },
+  { p: 70,  msg: "Drafting targeted suggestions…" },
+  { p: 92,  msg: "Finalising changes…" },
+]
+
+const GOAL_STEPS = [
+  { p: 20,  msg: "Reading resume content…" },
+  { p: 55,  msg: "Identifying career dimensions…" },
+  { p: 85,  msg: "Building scoring metrics…" },
+  { p: 97,  msg: "Almost ready…" },
+]
+
+/* ─── Shared modal overlay loader ───────────────────────────────────────────
+   Renders as a fixed full-screen overlay with a frosted backdrop so the page
+   content remains visible but dimmed behind it.
+   ─────────────────────────────────────────────────────────────────────────── */
+function LoadingModal({ step, progress }: { step: string; progress: number }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      {/* semi-transparent backdrop — page content shows through */}
+      <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" />
+      {/* card */}
+      <div className="relative z-10 bg-white rounded-2xl shadow-2xl px-10 py-8 w-full max-w-md mx-4">
+        {/* animated icon */}
+        <div className="flex justify-center mb-5">
+          <div className="w-12 h-12 rounded-full border-4 border-blue-100 border-t-blue-600 animate-spin" />
+        </div>
+        <p className="text-center text-blue-600 font-semibold text-base mb-4">{step}</p>
+        {/* progress bar */}
+        <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden mb-2">
+          <div
+            className="bg-blue-600 h-full rounded-full transition-all duration-700 ease-out"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+        <p className="text-right text-xs text-slate-400">{progress}%</p>
+        <p className="text-center text-slate-400 text-sm mt-3 animate-pulse">
+          This usually takes 10–20 seconds…
+        </p>
+      </div>
+    </div>
+  )
+}
+
 const VERDICT_COPY = {
   apply: {
     text: 'Strong match — recommended to apply with your current resume.',
@@ -72,16 +156,79 @@ export function AnalyzePage() {
   const [selectedResume, setSelectedResume] = useState('')
   const [selectedGoalSet, setSelectedGoalSet] = useState('')
   const [jdText, setJdText] = useState('')
+  const [jdMode, setJdMode] = useState<'text' | 'url' | 'image'>('text')
+  const [jdUrl, setJdUrl] = useState('')
+  const [jdImage, setJdImage] = useState<{ base64: string; mediaType: string; preview: string } | null>(null)
+  const [jdExtracting, setJdExtracting] = useState(false)
+  const [jdExtractError, setJdExtractError] = useState<string | null>(null)
   const [result, setResult] = useState<AnalysisResult | null>(null)
   const [suggestions, setSuggestions] = useState<Suggestions | null>(null)
   const [userPrompt, setUserPrompt] = useState('')
   const [forceSuggestions, setForceSuggestions] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  const [progress, setProgress] = useState(0)
+  const [loadingStep, setLoadingStep] = useState("")
+
+  const [suggestProgress, setSuggestProgress] = useState(0)
+  const [suggestStep, setSuggestStep] = useState("")
+
+  const [jdQueue, setJdQueue] = useState<JdQueueItem[]>(loadQueue)
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
+
   const { mutate: runAnalysis, isPending: analyzing } = useRunAnalysis()
   const { mutate: getSuggestions, isPending: suggesting } = useGetSuggestions()
 
-  // Default the resume + goal set selectors once data loads
+  // ── Pending imports from the browser extension ─────────────────────────────
+  // Polled every 10 s by usePendingImports(); the banner below the form lets
+  // the user one-click any import — which auto-fills the JD textarea and
+  // marks the import consumed on the server.
+  const { data: pendingImports = [] } = usePendingImports()
+  const { mutate: consumeImport } = useConsumeImport()
+  const { mutate: dismissImport } = useDismissImport()
+
+  const handleUseImport = (imp: PendingImport) => {
+    setJdText(imp.jd_text)
+    if (imp.url) setJdUrl(imp.url)
+    setJdMode('text')
+    consumeImport(imp.id)
+    setTimeout(() => {
+      textareaRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      textareaRef.current?.focus()
+    }, 100)
+  }
+
+  // ── Chrome extension JD prefill ──────────────────────────────────────────
+  // The extension navigates this tab to /#jd=<base64> when the user clicks
+  // "Open in Launchpad". Two scenarios:
+  //   A. Tab was closed → extension opens a new tab → component mounts with
+  //      hash already in the URL → applyHash() fires on mount.
+  //   B. Tab already open → extension does a hash navigation → no remount →
+  //      'hashchange' event fires → applyHash() fires from the listener.
+  useEffect(() => {
+    function applyHash() {
+      const m = window.location.hash.match(/[#&]jd=([A-Za-z0-9+/=]+)/)
+      if (!m?.[1]) return
+      // Clear hash immediately so refresh doesn't re-apply it
+      window.history.replaceState(null, '', window.location.pathname + window.location.search)
+      try {
+        const text = decodeURIComponent(escape(atob(m[1])))
+        if (text.length > 50) {
+          setJdText(text)
+          setJdMode('text')
+          setCurrentTab('analyze')
+          setTimeout(() => {
+            document.querySelector('textarea')?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+          }, 150)
+        }
+      } catch { /* malformed base64 — ignore */ }
+    }
+
+    applyHash()                                        // Scenario A — on mount
+    window.addEventListener('hashchange', applyHash)  // Scenario B — already open
+    return () => window.removeEventListener('hashchange', applyHash)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
   useEffect(() => {
     if (!selectedResume && resumes.length > 0) {
       setSelectedResume(resumes[0].name)
@@ -95,21 +242,103 @@ export function AnalyzePage() {
     }
   }, [goalSets, selectedGoalSet])
 
-  const handleRunAnalysis = () => {
+  const handleAddToQueue = () => {
+    if (!jdText.trim()) return
+    const firstLine = jdText.split('\n').find(l => l.trim().length > 0) ?? 'Untitled JD'
+    const item: JdQueueItem = {
+      id: Date.now().toString(),
+      title: firstLine.trim().slice(0, 80),
+      text: jdText,
+      addedAt: new Date().toISOString(),
+    }
+    const updated = [item, ...jdQueue]
+    setJdQueue(updated)
+    saveQueue(updated)
+    // Clear the input after parking
+    setJdText('')
+    setJdMode('text')
+  }
+
+  const handleEditFromQueue = (item: JdQueueItem) => {
+    setJdText(item.text)
+    setJdMode('text')
+    // Scroll JD box into view, then focus + move cursor to end
+    setTimeout(() => {
+      const el = textareaRef.current
+      if (!el) return
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      el.focus()
+      el.setSelectionRange(el.value.length, el.value.length)
+    }, 120)
+  }
+
+  const handleAnalyseFromQueue = (item: JdQueueItem) => {
+    setJdText(item.text)
+    setJdMode('text')
+    // Remove from queue immediately
+    const updated = jdQueue.filter(i => i.id !== item.id)
+    setJdQueue(updated)
+    saveQueue(updated)
+    // Kick off analysis after state settles
+    setTimeout(() => {
+      handleRunAnalysis(item.text)
+    }, 50)
+  }
+
+  const handleRemoveFromQueue = (id: string) => {
+    const updated = jdQueue.filter(i => i.id !== id)
+    setJdQueue(updated)
+    saveQueue(updated)
+  }
+
+  const handleRunAnalysis = (overrideText?: string) => {
     setError(null)
-    if (!selectedResume || !selectedGoalSet || !jdText.trim()) {
-      setError('Pick a resume, a goal set, and paste a job description.')
+    const activeJd = typeof overrideText === 'string' ? overrideText : jdText
+    if (!selectedResume || !selectedGoalSet || !activeJd.trim()) {
+      setError('Pick a resume, a goal set, and provide a job description (paste text, extract from URL, or upload a screenshot).')
       return
     }
+
+    // Seed the first step immediately so the loader is never blank.
+    setProgress(LOADING_STEPS[0].p)
+    setLoadingStep(LOADING_STEPS[0].msg)
+    let currentStep = 1
+    const interval = setInterval(() => {
+      if (currentStep < LOADING_STEPS.length) {
+        setLoadingStep(LOADING_STEPS[currentStep].msg)
+        setProgress(LOADING_STEPS[currentStep].p)
+        currentStep++
+      } else {
+        clearInterval(interval)
+      }
+    }, 2000)
+
     runAnalysis(
-      { resumeName: selectedResume, goalSetId: selectedGoalSet, jdText },
+      { resumeName: selectedResume, goalSetId: selectedGoalSet, jdText: activeJd },
       {
-        onSuccess: (data) => {
+        onSuccess: (data: any) => {
+          clearInterval(interval)
+          setProgress(0)
+          setLoadingStep("")
           setResult(data as AnalysisResult)
-          setSuggestions(null)
+          // /run now returns suggestions in the same response — apply them immediately
+          if (data.suggestions) {
+            setSuggestions(data.suggestions as Suggestions)
+          } else {
+            setSuggestions(null)
+          }
           setForceSuggestions(false)
+          // Remove from queue if this JD was loaded from there
+          const updated = jdQueue.filter(i => i.text !== activeJd)
+          if (updated.length !== jdQueue.length) {
+            setJdQueue(updated)
+            saveQueue(updated)
+          }
         },
         onError: (e: any) => {
+          clearInterval(interval)
+          setProgress(0)
+          setLoadingStep("")
           setError(e?.response?.data?.detail ?? e?.message ?? 'Analysis failed')
         },
       },
@@ -118,6 +347,20 @@ export function AnalyzePage() {
 
   const handleGetSuggestions = (override = false) => {
     if (!result) return
+
+    setSuggestProgress(SUGGESTIONS_STEPS[0].p)
+    setSuggestStep(SUGGESTIONS_STEPS[0].msg)
+    let step = 1
+    const interval = setInterval(() => {
+      if (step < SUGGESTIONS_STEPS.length) {
+        setSuggestStep(SUGGESTIONS_STEPS[step].msg)
+        setSuggestProgress(SUGGESTIONS_STEPS[step].p)
+        step++
+      } else {
+        clearInterval(interval)
+      }
+    }, 2000)
+
     getSuggestions(
       {
         resumeName: result.resume_name,
@@ -127,7 +370,17 @@ export function AnalyzePage() {
         override,
       },
       {
-        onSuccess: (data) => setSuggestions(data as Suggestions),
+        onSuccess: (data) => {
+          clearInterval(interval)
+          setSuggestProgress(0)
+          setSuggestStep("")
+          setSuggestions(data as Suggestions)
+        },
+        onError: () => {
+          clearInterval(interval)
+          setSuggestProgress(0)
+          setSuggestStep("")
+        },
       },
     )
   }
@@ -137,8 +390,67 @@ export function AnalyzePage() {
     setSuggestions(null)
     setUserPrompt('')
     setJdText('')
+    setJdUrl('')
+    setJdImage(null)
+    setJdMode('text')
+    setJdExtractError(null)
     setForceSuggestions(false)
     setError(null)
+    // jdQueue intentionally preserved — user may want to analyse the next one
+  }
+
+  const handleExtractFromUrl = async () => {
+    if (!jdUrl.trim()) return
+    setJdExtracting(true)
+    setJdExtractError(null)
+    try {
+      const res = await fetch('/api/analyze/extract-jd-url', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: jdUrl.trim() }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.detail ?? 'Extraction failed')
+      setJdText(data.jd_text)
+      setJdMode('text')   // switch to text tab to show the extracted content
+    } catch (e: any) {
+      setJdExtractError(e.message ?? 'Could not extract JD from that URL')
+    } finally {
+      setJdExtracting(false)
+    }
+  }
+
+  const handleImageFile = (file: File) => {
+    const reader = new FileReader()
+    reader.onload = () => {
+      const dataUrl = reader.result as string
+      const [meta, base64] = dataUrl.split(',')
+      const mediaType = meta.match(/:(.*?);/)?.[1] ?? 'image/png'
+      setJdImage({ base64, mediaType, preview: dataUrl })
+      setJdExtractError(null)
+    }
+    reader.readAsDataURL(file)
+  }
+
+  const handleExtractFromImage = async () => {
+    if (!jdImage) return
+    setJdExtracting(true)
+    setJdExtractError(null)
+    try {
+      const res = await fetch('/api/analyze/extract-jd-image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image_base64: jdImage.base64, media_type: jdImage.mediaType }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.detail ?? 'Extraction failed')
+      setJdText(data.jd_text)
+      setJdMode('text')   // switch to show extracted text
+    } catch (e: any) {
+      setJdExtractError(e.message ?? 'Could not extract text from image')
+    } finally {
+      setJdExtracting(false)
+    }
   }
 
   const showSuggestions =
@@ -169,6 +481,11 @@ export function AnalyzePage() {
 
   return (
     <div className="max-w-6xl mx-auto p-8 space-y-8">
+      {/* Analysis loader modal — renders over the form, keeping it visible */}
+      {analyzing && <LoadingModal step={loadingStep} progress={progress} />}
+      {/* Suggestions loader modal */}
+      {suggesting && <LoadingModal step={suggestStep} progress={suggestProgress} />}
+
       <div className="flex justify-between items-end border-b border-slate-200 pb-6">
         <div>
           <h1 className="text-3xl font-bold text-slate-900">Analyze</h1>
@@ -185,7 +502,58 @@ export function AnalyzePage() {
       </div>
 
       {!result ? (
-        <Card>
+        <>
+          {/* ── Pending extension imports banner ──────────────────────────── */}
+          {pendingImports.length > 0 && (
+            <Card className="border-blue-200 bg-blue-50/50">
+              <div className="flex items-start justify-between mb-3">
+                <div>
+                  <h2 className="text-sm font-bold text-blue-900 uppercase tracking-wide">
+                    {pendingImports.length} import{pendingImports.length === 1 ? '' : 's'} from browser extension
+                  </h2>
+                  <p className="text-xs text-blue-700 mt-0.5">
+                    Click one to load it into the JD field below.
+                  </p>
+                </div>
+              </div>
+              <div className="space-y-2">
+                {pendingImports.map((imp) => (
+                  <div
+                    key={imp.id}
+                    className="bg-white border border-blue-200 rounded-lg p-3 flex items-center gap-3 hover:border-blue-400 transition-colors"
+                  >
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-slate-900 truncate">
+                        {imp.jd_title || imp.host || 'Untitled JD'}
+                      </p>
+                      <p className="text-xs text-slate-500 mt-0.5 truncate">
+                        {imp.host ?? imp.url ?? 'unknown source'}
+                        {' · '}
+                        {imp.jd_text.length.toLocaleString()} chars
+                        {' · '}
+                        {new Date(imp.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => handleUseImport(imp)}
+                      className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-blue-600 hover:bg-blue-700 text-white whitespace-nowrap"
+                    >
+                      Use this JD
+                    </button>
+                    <button
+                      onClick={() => dismissImport(imp.id)}
+                      aria-label="Dismiss"
+                      className="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          )}
+
+          <Card>
           <h2 className="text-xl font-semibold text-slate-900 mb-6">New Analysis</h2>
           <div className="space-y-5">
             <div>
@@ -202,7 +570,6 @@ export function AnalyzePage() {
                 ))}
               </select>
             </div>
-
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">🎯 Goal Set</label>
               <select
@@ -219,18 +586,22 @@ export function AnalyzePage() {
               </select>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">
-                Job Description
-              </label>
-              <textarea
-                value={jdText}
-                onChange={(e) => setJdText(e.target.value)}
-                placeholder="Paste the full job description here…"
-                rows={10}
-                className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
+            <JdInput
+              mode={jdMode}
+              onModeChange={(m) => { setJdMode(m); setJdExtractError(null) }}
+              jdText={jdText}
+              onJdTextChange={setJdText}
+              jdUrl={jdUrl}
+              onJdUrlChange={setJdUrl}
+              jdImage={jdImage}
+              onImageFile={handleImageFile}
+              onClearImage={() => setJdImage(null)}
+              onExtractFromUrl={handleExtractFromUrl}
+              onExtractFromImage={handleExtractFromImage}
+              extracting={jdExtracting}
+              extractError={jdExtractError}
+              textareaRef={textareaRef}
+            />
 
             {error && (
               <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg p-3">
@@ -238,12 +609,100 @@ export function AnalyzePage() {
               </div>
             )}
 
-            <Button onClick={handleRunAnalysis} loading={analyzing} className="w-full">
-              <Play className="w-4 h-4 inline mr-2" />
-              Run Analysis
-            </Button>
+            <div className="flex gap-3">
+              <Button
+                variant="secondary"
+                onClick={handleAddToQueue}
+                disabled={!jdText.trim()}
+                className="flex-none px-5"
+                title="Park this JD to analyse later"
+              >
+                + Add
+              </Button>
+              <Button onClick={() => handleRunAnalysis()} loading={analyzing} className="flex-1">
+                <Play className="w-4 h-4 inline mr-2" />
+                Run Analysis
+              </Button>
+            </div>
           </div>
         </Card>
+
+        {/* ── JD Queue ──────────────────────────────────────────────────── */}
+        {jdQueue.length > 0 && (
+          <Card>
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h2 className="text-lg font-semibold text-slate-900">
+                  Job Descriptions to Analyse
+                </h2>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  {jdQueue.length} parked — click "Analyse" to load one into the box above
+                </p>
+              </div>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-slate-100">
+                    <th className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wide pb-2 pl-1 w-full">
+                      Job Description
+                    </th>
+                    <th className="text-left text-xs font-semibold text-slate-500 uppercase tracking-wide pb-2 px-4 whitespace-nowrap">
+                      Added
+                    </th>
+                    <th className="pb-2 px-1 w-32"></th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-50">
+                  {jdQueue.map((item) => (
+                    <tr key={item.id} className="group hover:bg-slate-50 transition-colors">
+                      <td className="py-3 pl-1 pr-4">
+                        <p className="font-medium text-slate-800 truncate max-w-xs">{item.title}</p>
+                        <p className="text-xs text-slate-400 mt-0.5">
+                          {item.text.length.toLocaleString()} chars
+                        </p>
+                      </td>
+                      <td className="py-3 px-4 text-slate-400 whitespace-nowrap text-xs">
+                        {new Date(item.addedAt).toLocaleDateString(undefined, {
+                          month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+                        })}
+                      </td>
+                      <td className="py-3 px-1">
+                        <div className="flex items-center gap-2 justify-end">
+                          <button
+                            onClick={() => handleEditFromQueue(item)}
+                            className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition-colors whitespace-nowrap flex items-center gap-1"
+                            title="Load into JD box to review or edit"
+                          >
+                            <Pencil className="w-3 h-3" />
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleAnalyseFromQueue(item)}
+                            className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition-colors whitespace-nowrap flex items-center gap-1"
+                            title="Run analysis immediately"
+                          >
+                            <Play className="w-3 h-3" />
+                            Analyse
+                          </button>
+                          <button
+                            onClick={() => handleRemoveFromQueue(item.id)}
+                            className="p-1.5 text-slate-300 hover:text-red-400 transition-colors rounded"
+                            title="Remove from queue"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Card>
+        )}
+        </>
       ) : (
         <AnalysisResults
           result={result}
@@ -260,6 +719,196 @@ export function AnalyzePage() {
           }}
           onStartNew={handleStartNew}
         />
+      )}
+    </div>
+  )
+}
+
+/* ─────────────────────────────────────────────
+   JD Input — Text / URL / Screenshot tabs
+   ───────────────────────────────────────────── */
+
+type JdMode = 'text' | 'url' | 'image'
+
+function JdInput({
+  mode, onModeChange,
+  jdText, onJdTextChange,
+  jdUrl, onJdUrlChange,
+  jdImage, onImageFile, onClearImage,
+  onExtractFromUrl, onExtractFromImage,
+  extracting, extractError,
+  textareaRef,
+}: {
+  mode: JdMode
+  onModeChange: (m: JdMode) => void
+  jdText: string
+  onJdTextChange: (v: string) => void
+  jdUrl: string
+  onJdUrlChange: (v: string) => void
+  jdImage: { base64: string; mediaType: string; preview: string } | null
+  onImageFile: (f: File) => void
+  onClearImage: () => void
+  onExtractFromUrl: () => void
+  onExtractFromImage: () => void
+  extracting: boolean
+  extractError: string | null
+  textareaRef?: React.RefObject<HTMLTextAreaElement>
+}) {
+  const tabs: { key: JdMode; label: string; Icon: any }[] = [
+    { key: 'text',  label: 'Paste Text',  Icon: FileText },
+    { key: 'url',   label: 'From URL',    Icon: Link },
+    { key: 'image', label: 'Screenshot',  Icon: Image },
+  ]
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    const file = e.dataTransfer.files?.[0]
+    if (file && file.type.startsWith('image/')) onImageFile(file)
+  }
+
+  const handlePaste = (e: React.ClipboardEvent) => {
+    const item = Array.from(e.clipboardData.items).find(i => i.type.startsWith('image/'))
+    if (item) {
+      e.preventDefault()
+      const file = item.getAsFile()
+      if (file) onImageFile(file)
+    }
+  }
+
+  return (
+    <div>
+      <label className="block text-sm font-medium text-slate-700 mb-2">Job Description</label>
+
+      {/* Tab bar */}
+      <div className="flex gap-1 mb-3 bg-slate-100 p-1 rounded-lg w-fit">
+        {tabs.map(({ key, label, Icon }) => (
+          <button
+            key={key}
+            type="button"
+            onClick={() => onModeChange(key)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+              mode === key
+                ? 'bg-white text-blue-600 shadow-sm'
+                : 'text-slate-500 hover:text-slate-700'
+            }`}
+          >
+            <Icon className="w-3.5 h-3.5" />
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {/* ── Tab: Paste Text ── */}
+      {mode === 'text' && (
+        <textarea
+          ref={textareaRef}
+          value={jdText}
+          onChange={(e) => onJdTextChange(e.target.value)}
+          placeholder="Paste the full job description here…"
+          rows={10}
+          className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y"
+        />
+      )}
+
+      {/* ── Tab: From URL ── */}
+      {mode === 'url' && (
+        <div className="space-y-3">
+          <div className="flex gap-2">
+            <input
+              type="url"
+              value={jdUrl}
+              onChange={(e) => onJdUrlChange(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && onExtractFromUrl()}
+              placeholder="https://www.linkedin.com/jobs/view/… or any job posting URL"
+              className="flex-1 px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+            />
+            <Button
+              onClick={onExtractFromUrl}
+              loading={extracting}
+              disabled={!jdUrl.trim() || extracting}
+            >
+              {extracting ? 'Extracting…' : 'Extract JD'}
+            </Button>
+          </div>
+          <p className="text-xs text-slate-400">
+            Works with LinkedIn, Greenhouse, Lever, Workday, company career pages and most public job boards.
+            Some sites block scraping — paste the text directly if extraction fails.
+          </p>
+          {extractError && (
+            <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+              {extractError}
+            </p>
+          )}
+          {/* Preview extracted text if already done */}
+          {!extracting && !extractError && jdText && (
+            <div className="bg-green-50 border border-green-200 rounded-lg px-3 py-2 text-sm text-green-800 flex items-start gap-2">
+              <CheckCircle className="w-4 h-4 mt-0.5 flex-shrink-0 text-green-600" />
+              <span>JD extracted ({jdText.length.toLocaleString()} characters). Switch to "Paste Text" tab to review or edit.</span>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── Tab: Screenshot ── */}
+      {mode === 'image' && (
+        <div className="space-y-3">
+          {!jdImage ? (
+            <label
+              onDrop={handleDrop}
+              onDragOver={(e) => e.preventDefault()}
+              onPaste={handlePaste}
+              className="border-2 border-dashed border-slate-300 hover:border-blue-400 rounded-lg p-8 text-center cursor-pointer transition-colors focus-within:border-blue-500 outline-none block"
+              tabIndex={0}
+            >
+              <Image className="w-8 h-8 text-slate-400 mx-auto mb-2" />
+              <p className="text-slate-600 font-medium text-sm">Drop, paste (Ctrl+V), or click to upload a screenshot</p>
+              <p className="text-xs text-slate-400 mt-1">PNG, JPEG, WEBP supported</p>
+              <input
+                type="file"
+                accept="image/png,image/jpeg,image/webp"
+                className="sr-only"
+                onChange={(e) => { const f = e.target.files?.[0]; if (f) onImageFile(f) }}
+              />
+            </label>
+          ) : (
+            <div className="space-y-3">
+              <div className="relative w-full rounded-lg overflow-hidden border border-slate-200 bg-slate-50">
+                <img
+                  src={jdImage.preview}
+                  alt="JD screenshot"
+                  className="w-full max-h-72 object-contain"
+                />
+                <button
+                  onClick={onClearImage}
+                  className="absolute top-2 right-2 bg-white/90 hover:bg-white rounded-full p-1 shadow border border-slate-200"
+                  aria-label="Remove image"
+                >
+                  <X className="w-4 h-4 text-slate-600" />
+                </button>
+              </div>
+              <Button
+                onClick={onExtractFromImage}
+                loading={extracting}
+                disabled={extracting}
+                className="w-full"
+              >
+                <Sparkles className="w-4 h-4 inline mr-2" />
+                {extracting ? 'Extracting text from screenshot…' : 'Extract JD from Screenshot'}
+              </Button>
+            </div>
+          )}
+          {extractError && (
+            <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+              {extractError}
+            </p>
+          )}
+          {!extracting && !extractError && jdText && jdImage && (
+            <div className="bg-green-50 border border-green-200 rounded-lg px-3 py-2 text-sm text-green-800 flex items-start gap-2">
+              <CheckCircle className="w-4 h-4 mt-0.5 flex-shrink-0 text-green-600" />
+              <span>Text extracted ({jdText.length.toLocaleString()} characters). Switch to "Paste Text" tab to review or edit.</span>
+            </div>
+          )}
+        </div>
       )}
     </div>
   )
@@ -413,9 +1062,85 @@ function AnalysisResults({
       </Card>
 
       {/* Scorecard */}
-      <Card>
-        <h3 className="text-lg font-semibold text-slate-900 mb-4">Scorecard</h3>
-        <ScorecardTable scores={scorecard.scores} />
+      <Card className="overflow-hidden">
+        <div className="px-6 py-4 border-b border-slate-100">
+          <h3 className="text-base font-semibold text-slate-900">Scorecard</h3>
+          <p className="text-xs text-slate-400 mt-0.5">
+            {scorecard.scores.length} dimension{scorecard.scores.length !== 1 ? 's' : ''} scored
+          </p>
+        </div>
+        <table className="w-full text-left">
+          <thead className="bg-slate-50 border-b border-slate-200">
+            <tr>
+              <th className="px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide w-44">
+                Metric
+              </th>
+              <th className="px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide w-40">
+                Score
+              </th>
+              <th className="px-6 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                Analysis
+              </th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-100">
+            {scorecard.scores.map((row, i) => {
+              const pct = (row.score / 10) * 100
+              const barColor = row.score >= 7.5 ? 'bg-green-500'
+                             : row.score >= 5.5 ? 'bg-amber-500'
+                             : 'bg-red-500'
+              const scoreColor = row.score >= 7.5 ? 'text-green-700 bg-green-50 border-green-200'
+                               : row.score >= 5.5 ? 'text-amber-700 bg-amber-50 border-amber-200'
+                               : 'text-red-700 bg-red-50 border-red-200'
+              return (
+                <tr key={i} className="hover:bg-slate-50/60 transition-colors">
+                  {/* Metric name */}
+                  <td className="px-6 py-4">
+                    <span className="text-sm font-semibold text-slate-800 leading-snug">
+                      {row.dimension}
+                    </span>
+                  </td>
+                  {/* Score: badge + progress bar */}
+                  <td className="px-4 py-4">
+                    <div className="flex flex-col gap-1.5">
+                      <span className={`inline-block px-2 py-0.5 rounded-md text-xs font-bold border ${scoreColor} w-fit`}>
+                        {row.score.toFixed(1)}<span className="font-normal opacity-60">/10</span>
+                      </span>
+                      <div className="w-32 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                        <div
+                          className={`h-full rounded-full transition-all ${barColor}`}
+                          style={{ width: `${pct}%` }}
+                        />
+                      </div>
+                    </div>
+                  </td>
+                  {/* Remark */}
+                  <td className="px-6 py-4 text-sm text-slate-600 leading-relaxed">
+                    {row.remark}
+                  </td>
+                </tr>
+              )
+            })}
+          </tbody>
+          {/* Overall fit footer row */}
+          <tfoot className="bg-slate-50 border-t-2 border-slate-200">
+            <tr>
+              <td className="px-6 py-3 text-sm font-bold text-slate-700">Overall Fit</td>
+              <td className="px-4 py-3">
+                <span className={`inline-block px-2.5 py-1 rounded-md text-sm font-bold border ${
+                  scorecard.overall_fit >= 7.5 ? 'text-green-700 bg-green-50 border-green-200'
+                  : scorecard.overall_fit >= 5.5 ? 'text-amber-700 bg-amber-50 border-amber-200'
+                  : 'text-red-700 bg-red-50 border-red-200'
+                }`}>
+                  {scorecard.overall_fit.toFixed(1)}<span className="font-normal opacity-60">/10</span>
+                </span>
+              </td>
+              <td className="px-6 py-3 text-sm text-slate-500 italic">
+                Weighted mean across all dimensions
+              </td>
+            </tr>
+          </tfoot>
+        </table>
       </Card>
 
       {/* Gaps */}
@@ -582,49 +1307,6 @@ function AnalysisResults({
 /* ─────────────────────────────────────────────
    Sub-components
    ───────────────────────────────────────────── */
-
-function ScorecardTable({ scores }: { scores: Score[] }) {
-  if (!scores || scores.length === 0) {
-    return <p className="text-slate-500 text-sm">No scores returned.</p>
-  }
-  const sorted = [...scores].sort((a, b) => b.score - a.score)
-  return (
-    <div className="border border-slate-200 rounded-lg overflow-hidden">
-      <div className="grid grid-cols-[2fr_auto_auto_3fr] bg-slate-100 border-b border-slate-200 text-sm font-semibold text-slate-900">
-        <div className="p-3">Dimension</div>
-        <div className="p-3 text-center">Score</div>
-        <div className="p-3 text-center">Level</div>
-        <div className="p-3">Remarks</div>
-      </div>
-      {sorted.map((s) => {
-        const level = s.score >= 8 ? 'High' : s.score >= 6 ? 'Mid' : 'Low'
-        const levelColor =
-          level === 'High'
-            ? 'bg-green-100 text-green-700'
-            : level === 'Mid'
-              ? 'bg-amber-100 text-amber-700'
-              : 'bg-red-100 text-red-700'
-        return (
-          <div
-            key={s.goal_id}
-            className="grid grid-cols-[2fr_auto_auto_3fr] border-b border-slate-200 last:border-b-0 text-sm"
-          >
-            <div className="p-3 font-medium text-slate-900">{s.dimension}</div>
-            <div className="p-3 text-center text-slate-900 font-semibold">
-              {s.score.toFixed(1)}/10
-            </div>
-            <div className="p-3 text-center">
-              <span className={`inline-block px-2 py-0.5 rounded text-xs font-semibold ${levelColor}`}>
-                {level}
-              </span>
-            </div>
-            <div className="p-3 text-slate-600">{s.remark}</div>
-          </div>
-        )
-      })}
-    </div>
-  )
-}
 
 const CRITICALITY_STYLES: Record<string, { bg: string; border: string; text: string; pill: string }> = {
   High: {
@@ -824,3 +1506,5 @@ function SuggestionsTable({
     </div>
   )
 }
+
+export { LoadingModal, GOAL_STEPS }

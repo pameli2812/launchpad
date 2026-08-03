@@ -30,9 +30,19 @@ interface AppState {
   setAnalysisResult: (result: any) => void
   
   // UI state
-  currentTab: 'setup' | 'analyze' | 'history'
-  setCurrentTab: (tab: 'setup' | 'analyze' | 'history') => void
+  currentTab: TabId
+  setCurrentTab: (tab: TabId) => void
 }
+
+export type TabId =
+  | 'dashboard'
+  | 'analyze'
+  | 'setup'
+  | 'history'
+  | 'resume-review'
+  | 'ats-rank'
+  | 'company-suggestion'
+  | 'settings'
 
 export const useAppStore = create<AppState>((set) => ({
   selectedResume: null,

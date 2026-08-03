@@ -1,11 +1,23 @@
 """Generate resume change suggestions.
 
-Reuses the same cached context block as scorecard.py so the resume + JD + goals
-prefix hits the cache from the prior scorecard call.
+Cache strategy
+--------------
+Reuses the same build_context_block() as scorecard.py so the resume + JD prefix
+hits the cache seeded by the prior scorecard call — call 2 in the pipeline pays
+only for the task tokens, not the full context again.
+
+Gap trimming
+------------
+Only gap details + criticality are forwarded in the volatile task slot.
+Sending full gap objects (with all their fields) adds unnecessary tokens to
+every suggestions call.
 """
 
 import json
+import logging
 from typing import Any, Dict, List, Optional
+
+logger = logging.getLogger(__name__)
 
 try:
     from launchpad.utils.openai_helper import call_llm_json
@@ -17,6 +29,51 @@ try:
 except ImportError:
     from utils.scorecard import SCORING_SYSTEM, build_context_block
 
+_EMPTY_RESULT: Dict[str, Any] = {
+    "paraphrasing": [],
+    "missing": [],
+    "remove": [],
+    "polish": [],
+}
+
+# ── Task template (volatile) ──────────────────────────────────────────────────
+# {gaps}, {override_note}, {user_note} are substituted at call time.
+# Everything else is static so the template is allocated once.
+
+_TASK_TEMPLATE = """\
+TASK: Generate up to 10 specific, line-level resume edits to improve match against the JD.
+
+Write in second person ("you"/"your"). Never "the candidate".
+Every suggestion targets exactly one section: Summary | Job Experience | Education | Skills | Projects | Hobbies.
+Do not invent achievements — only reframe what exists, or suggest adding things the user actually has.
+Order by impact descending.{override_note}{user_note}
+
+Gaps to address: {gaps}
+
+Output JSON (omit empty arrays):
+{{"paraphrasing":[{{"section":str,"original":str,"improved":str,"reason":str,"impact":"high"|"medium"|"low"}}],\
+"missing":[{{"section":str,"what_to_add":str,"why_it_matters":str,"jd_reference":str}}],\
+"remove":[{{"section":str,"text":str,"reason":str}}],\
+"polish":[{{"section":str,"original":str,"improved":str,"reason":str}}]}}"""
+
+
+def _trim_gaps(gaps: List[Any]) -> List[Dict[str, str]]:
+    """Keep only the fields the LLM needs for suggestion generation.
+
+    Full gap objects can include arbitrary metadata.  We only need the details
+    and criticality — sending the rest wastes tokens in the volatile task slot.
+    """
+    trimmed = []
+    for g in gaps:
+        if isinstance(g, dict):
+            trimmed.append({
+                "details": str(g.get("details") or g.get("description") or ""),
+                "criticality": str(g.get("criticality") or "Medium"),
+            })
+        else:
+            trimmed.append({"details": str(g), "criticality": "Medium"})
+    return trimmed
+
 
 def generate_resume_suggestions(
     resume_text: str,
@@ -27,78 +84,33 @@ def generate_resume_suggestions(
 ) -> Dict[str, Any]:
     """Generate specific, line-level resume change suggestions.
 
-    Returns a dict with four buckets — paraphrasing (Text Edit), missing
-    (Add Data), remove (Remove Text), polish (Polish Content). Each item
-    targets one of: Summary, Job Experience, Education, Skills, Projects,
-    Hobbies.
+    Returns a dict with four buckets — paraphrasing, missing, remove, polish.
     """
-
-    # Same cached prefix as scorecard. Goals aren't strictly needed for
-    # suggestions, but reusing the block means the cache hits on call 2.
+    # Reuse the same cached prefix as scorecard (goals=[] keeps the format
+    # identical to scorecard's block when goal weights aren't needed here).
     cached_context = build_context_block(resume_text, jd_json, goals=[])
 
-    gaps_str = json.dumps(gaps, default=str)
+    override_note = (
+        "\nNOTE: User is applying despite a skip verdict — lead with best-case framing."
+        if override else ""
+    )
+    user_note = (
+        f"\nUser guidance: {user_prompt.strip()}"
+        if user_prompt and user_prompt.strip() else ""
+    )
 
-    override_context = ""
-    if override:
-        override_context = (
-            "\nNOTE: You are choosing to apply despite a skip verdict. "
-            "Lead with best-case framing — what your resume can realistically achieve."
-        )
-
-    user_guidance = ""
-    if user_prompt and user_prompt.strip():
-        user_guidance = (
-            "\n\nUser guidance (take this into account when choosing what to suggest):\n"
-            + user_prompt.strip()
-        )
-
-    task = f"""TASK: Generate specific, line-level resume change suggestions to improve this resume's match against the JD.
-
-Write directly to the user using second person ("you", "your"). Never use "the candidate".
-
-Rules:
-- Every suggestion must target exactly one of these sections:
-  Summary, Job Experience, Education, Skills, Projects, Hobbies.
-- Paraphrasing (Text Edit): EXACT original text from the resume -> improved text.
-  Must be copy-pasteable.
-- Polish (Polish Content): tighten wording, fix passive voice, add metrics — original
-  must exist in the resume.
-- Missing (Add Data): describe what to add, which section, and why it matters for
-  this JD (quote JD language). For missing items, "before" should be "No change".
-- Remove (Remove Text): content that hurts this application (off-topic experience,
-  dated tech).
-- Do not invent achievements. Only suggest reframing what already exists, or adding
-  things the user actually has.
-- Max 10 total changes across all four buckets, ordered by impact descending.
-
-Output JSON schema:
-{{
-  "paraphrasing": [{{
-    "section": "Summary"|"Job Experience"|"Education"|"Skills"|"Projects"|"Hobbies",
-    "original": str, "improved": str, "reason": str,
-    "impact": "high"|"medium"|"low"
-  }}],
-  "missing": [{{
-    "section": str, "what_to_add": str, "why_it_matters": str, "jd_reference": str
-  }}],
-  "remove": [{{"section": str, "text": str, "reason": str}}],
-  "polish": [{{"section": str, "original": str, "improved": str, "reason": str}}]
-}}
-{override_context}{user_guidance}
-
-Identified gaps to address: {gaps_str}"""
+    task = _TASK_TEMPLATE.format(
+        gaps=json.dumps(_trim_gaps(gaps), separators=(",", ":")),
+        override_note=override_note,
+        user_note=user_note,
+    )
 
     try:
-        result = call_llm_json(cached_context, task, system=SCORING_SYSTEM)
-        parsed = json.loads(result)
+        raw = call_llm_json(cached_context, task, system=SCORING_SYSTEM)
+        parsed = json.loads(raw)
         for key in ("paraphrasing", "missing", "remove", "polish"):
             parsed.setdefault(key, [])
         return parsed
-    except Exception:
-        return {
-            "paraphrasing": [],
-            "missing": [],
-            "remove": [],
-            "polish": [],
-        }
+    except Exception as exc:
+        logger.warning("generate_resume_suggestions failed: %s", exc)
+        return dict(_EMPTY_RESULT)

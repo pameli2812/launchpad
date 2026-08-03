@@ -65,196 +65,6 @@
         }
     },
     {
-        "jd_id": "038fecf2",
-        "analyzed_at": "2026-05-20T16:21:59.823027",
-        "goal_set_id": "c14ef3e6",
-        "goal_set_name": "Director of product",
-        "goal_set_snapshot": [
-            {
-                "id": "goal_1",
-                "label": "product",
-                "description": "test",
-                "auto_inferred": false
-            },
-            {
-                "id": "goal_2",
-                "label": "senior product manager",
-                "description": "test",
-                "auto_inferred": false
-            }
-        ],
-        "resume_id": "Yash_V_momentum.pdf",
-        "resume_snapshot_hash": "67966bab3f8a",
-        "scorecard": {
-            "scores": [
-                {
-                    "goal_id": "goal_1",
-                    "dimension": "seniority",
-                    "score": 9.0,
-                    "remark": "You have a strong level of seniority as a Director, which aligns well with the 'Senior Product Manager' goal."
-                },
-                {
-                    "goal_id": "goal_1",
-                    "dimension": "domain",
-                    "score": 8.0,
-                    "remark": "Your extensive experience in product management across B2B SaaS, FinTech, and enterprise analytics demonstrates a broad domain expertise relevant to the 'product' goal."
-                },
-                {
-                    "goal_id": "goal_1",
-                    "dimension": "tools",
-                    "score": 8.5,
-                    "remark": "Your proficiency in tools such as Jira, Confluence, Amplitude, Figma, Miro, Balsamiq, MS Office, PowerBI, Tableau, Postman, GitHub, and GitLab is impressive."
-                },
-                {
-                    "goal_id": "goal_1",
-                    "dimension": "technical_skills",
-                    "score": 7.5,
-                    "remark": "Your technical skills in Generative AI, Agentic AI workflows, Retrieval-Augmented Generation (RAG), Product Roadmaps, Feature Prioritization, Go-to-Market Strategy, Machine Learning solutions, and SQL are strong, but your knowledge of Python and Postgres could be strengthened to better align with the 'product' goal."
-                },
-                {
-                    "goal_id": "goal_2",
-                    "dimension": "seniority",
-                    "score": 8.5,
-                    "remark": "Your current position as a Director of Product Management is senior and directly relevant to the 'Senior Product Manager' goal."
-                },
-                {
-                    "goal_id": "goal_2",
-                    "dimension": "domain",
-                    "score": 8.5,
-                    "remark": "Your experience in product management across various industries (B2B SaaS, FinTech, and enterprise analytics) aligns well with the 'senior product manager' goal."
-                },
-                {
-                    "goal_id": "goal_2",
-                    "dimension": "leadership",
-                    "score": 8.5,
-                    "remark": "Your leadership experience in managing cross-functional teams and leading the launch of Kelp Global demonstrates your ability to lead and excel at a senior level."
-                },
-                {
-                    "goal_id": "goal_2",
-                    "dimension": "tools",
-                    "score": 8.0,
-                    "remark": "Your proficiency in tools such as Jira, Confluence, Amplitude, Figma, Miro, Balsamiq, MS Office, PowerBI, Tableau, Postman, GitHub, and GitLab is impressive, although a more specific focus on tools commonly used in the recruitment domain would be beneficial."
-                }
-            ],
-            "overall_fit": 8.57,
-            "verdict": "borderline",
-            "summary": "Your extensive experience in product management and leadership across various industries, coupled with your proficiency in a wide range of tools, positions you well for the 'product' and 'senior product manager' goals. However, to better align with these goals, it would be beneficial to strengthen your technical skills in Python and Postgres, as well as focus more on recruitment-specific tools. The opportunity at Duolingo could provide an excellent platform to develop these competencies while partnering directly with senior leaders to build and shape a product organization.",
-            "gaps": []
-        },
-        "verdict": "borderline",
-        "overall_fit": 8.57,
-        "status": "pending",
-        "changes_generated": false,
-        "jd_title": "Lead Recruiter",
-        "company": "Duolingo",
-        "url": null,
-        "suggestions": null
-    },
-    {
-        "jd_id": "e005bd91",
-        "analyzed_at": "2026-05-20T17:27:01.239669",
-        "goal_set_id": "ddaa91d1",
-        "goal_set_name": "Director of product",
-        "goal_set_snapshot": [
-            {
-                "id": "goal_1",
-                "label": "product",
-                "description": "test",
-                "auto_inferred": false
-            }
-        ],
-        "resume_id": "Yash_V_momentum.pdf",
-        "resume_snapshot_hash": "67966bab3f8a",
-        "scorecard": {
-            "scores": [
-                {
-                    "goal_id": "goal_1",
-                    "dimension": "domain",
-                    "score": 8.0,
-                    "remark": "The resume demonstrates extensive experience in product management, specifically in AI-native product development across B2B SaaS, FinTech, and enterprise analytics."
-                },
-                {
-                    "goal_id": "goal_1",
-                    "dimension": "seniority",
-                    "score": 9.0,
-                    "remark": "The candidate's current role as Director of Product Management at Contify indicates high-level product leadership experience."
-                },
-                {
-                    "goal_id": "goal_1",
-                    "dimension": "tools",
-                    "score": 7.0,
-                    "remark": "The candidate lists proficiency in various tools such as Jira, Confluence, Amplitude, Figma, Miro, Balsamiq, MS Office - Excel, PowerPoint, PowerBI, Tableau, Postman, GitHub, and GitLab."
-                },
-                {
-                    "goal_id": "goal_1",
-                    "dimension": "skills",
-                    "score": 9.0,
-                    "remark": "The candidate possesses strong skills in Product Lifecycle Management, Generative AI, Agentic AI Workflows, Retrieval-Augmented Generation (RAG), Product Roadmaps, Feature Prioritization, Go-to-Market Strategy, Machine Learning solutions, Agile - Scrum, Cross-Functional Leadership, Enterprise Software, API Integrations."
-                },
-                {
-                    "goal_id": "goal_1",
-                    "dimension": "certification",
-                    "score": 0.0,
-                    "remark": "No certifications were listed on the resume."
-                },
-                {
-                    "goal_id": "goal_1",
-                    "dimension": "soft_skills",
-                    "score": 8.0,
-                    "remark": "The candidate demonstrates strong cross-functional leadership and data-driven decision making skills."
-                },
-                {
-                    "goal_id": "goal_1",
-                    "dimension": "tooling",
-                    "score": 7.0,
-                    "remark": "The candidate lists proficiency in SQL, Python, Postgres."
-                },
-                {
-                    "goal_id": "goal_1",
-                    "dimension": "language",
-                    "score": 8.0,
-                    "remark": "While the language was not explicitly listed on the resume, the candidate's educational background suggests English proficiency."
-                },
-                {
-                    "goal_id": "goal_1",
-                    "dimension": "location",
-                    "score": 2.0,
-                    "remark": "The candidate's current location is Gurugram, India, which may not align with the JD's requirement of onsite work in New York, NY."
-                },
-                {
-                    "goal_id": "goal_1",
-                    "dimension": "data_fluency",
-                    "score": 9.0,
-                    "remark": "The candidate leveraged Amplitude to track user activity and build behavioral dashboards for data-informed product decisions."
-                },
-                {
-                    "goal_id": "goal_1",
-                    "dimension": "comfort_with_ambiguity",
-                    "score": 8.0,
-                    "remark": "The candidate led the launch of Kelp Global, transforming deal sourcing and portfolio management for global private equity firms, indicating comfort with ambiguity."
-                },
-                {
-                    "goal_id": "goal_1",
-                    "dimension": "recruiting_experience",
-                    "score": 0.0,
-                    "remark": "The candidate's background is primarily in product management and does not demonstrate the required 7+ years of full-cycle recruiting experience."
-                }
-            ],
-            "overall_fit": 5.0,
-            "verdict": "borderline",
-            "summary": "",
-            "gaps": []
-        },
-        "verdict": "borderline",
-        "overall_fit": 5.0,
-        "status": "pending",
-        "changes_generated": false,
-        "jd_title": "Lead Recruiter",
-        "company": "Duolingo",
-        "url": null,
-        "suggestions": null
-    },
-    {
         "jd_id": "961c2bdb",
         "analyzed_at": "2026-05-20T17:41:24.170770",
         "goal_set_id": "ddaa91d1",
@@ -336,6 +146,909 @@
         "changes_generated": false,
         "jd_title": "Lead Recruiter",
         "company": "Duolingo",
+        "url": null,
+        "suggestions": null
+    },
+    {
+        "jd_id": "3310fb34",
+        "analyzed_at": "2026-05-20T20:37:06.051157",
+        "goal_set_id": "25f36dfa",
+        "goal_set_name": "International Roles",
+        "goal_set_snapshot": [
+            {
+                "id": "goal_d_0",
+                "label": "Director-level Product Leader in AI-driven Transformations",
+                "description": "Leading AI transformations across B2B SaaS, FinTech, and enterprise analytics.",
+                "auto_inferred": true
+            },
+            {
+                "id": "goal_d_1",
+                "label": "Product Management at Contify",
+                "description": "Current role leading a cross-functional team in a competitive intelligence platform with $3M ARR, focusing on GenAI, Newsfeed, Dashboards, APIs, and Enterprise Integrations.",
+                "auto_inferred": true
+            },
+            {
+                "id": "goal_d_2",
+                "label": "Leading Product Development in FinTech",
+                "description": "Led the launch of Kelp Global, a fin-tech startup offering B2B SaaS that streamlines the private equity investment lifecycle.",
+                "auto_inferred": true
+            },
+            {
+                "id": "goal_d_3",
+                "label": "AI-driven Analytics for Marketing Campaigns",
+                "description": "Specialized in enhancing marketing campaigns performance for banks, focusing on personalized recommendations and multi-class classification models.",
+                "auto_inferred": true
+            },
+            {
+                "id": "goal_d_4",
+                "label": "Card Analytics and Marketing Strategies",
+                "description": "Focused on analytics for card marketing strategies to boost engagement at Axis Bank, driving increases in cross-selling and credit limit approvals.",
+                "auto_inferred": true
+            },
+            {
+                "id": "goal_d_5",
+                "label": "Marketing Analytics and Campaign Performance",
+                "description": "Designed marketing campaigns for insurance and retail liabilities at Axis Bank, improving conversions through channels like Email, SMS, and Call center.",
+                "auto_inferred": true
+            }
+        ],
+        "resume_id": "Yash_V_2.pdf",
+        "resume_snapshot_hash": "c1367ff040e6",
+        "scorecard": {
+            "scores": [
+                {
+                    "goal_id": "goal_d_0",
+                    "dimension": "Experience Level",
+                    "score": 8.0,
+                    "remark": "11 years of experience is close to the required minimum of 15+ years"
+                },
+                {
+                    "goal_id": "goal_d_0",
+                    "dimension": "Seniority Level",
+                    "score": 9.0,
+                    "remark": "Director-level position aligns well with the required seniority level"
+                },
+                {
+                    "goal_id": "goal_d_0",
+                    "dimension": "Domain Expertise",
+                    "score": 9.0,
+                    "remark": "Experience in B2B SaaS and FinTech is a strong match for the job description"
+                },
+                {
+                    "goal_id": "goal_d_0",
+                    "dimension": "Product Leadership",
+                    "score": 9.0,
+                    "remark": "Leading AI-driven transformations and launching platforms aligns with the job description's emphasis on product leadership"
+                },
+                {
+                    "goal_id": "goal_d_0",
+                    "dimension": "Team Management",
+                    "score": 9.0,
+                    "remark": "Experience managing teams of Product Managers, Designers, and QA aligns with the job's team management responsibilities"
+                },
+                {
+                    "goal_id": "goal_d_0",
+                    "dimension": "Executive Influence",
+                    "score": 7.0,
+                    "remark": "Partnering with CEO and engineering teams suggests some experience influencing at executive levels"
+                },
+                {
+                    "goal_id": "goal_d_0",
+                    "dimension": "Product Discovery",
+                    "score": 8.0,
+                    "remark": "Strong skills in feature prioritization and user story documentation demonstrate some experience with product discovery practices"
+                },
+                {
+                    "goal_id": "goal_d_0",
+                    "dimension": "Product Analytics",
+                    "score": 7.0,
+                    "remark": "Experience with analytics for marketing campaigns shows some familiarity with modern product analytics"
+                },
+                {
+                    "goal_id": "goal_d_0",
+                    "dimension": "Experimentation Frameworks",
+                    "score": 6.0,
+                    "remark": "No clear evidence of experience with experimentation frameworks"
+                }
+            ],
+            "overall_fit": 5.0,
+            "verdict": "borderline",
+            "summary": "",
+            "gaps": []
+        },
+        "verdict": "borderline",
+        "overall_fit": 5.0,
+        "status": "pending",
+        "changes_generated": false,
+        "jd_title": "Group Product Manager",
+        "company": "Cvent",
+        "url": null,
+        "suggestions": null
+    },
+    {
+        "jd_id": "1d32f44a",
+        "analyzed_at": "2026-05-21T14:30:17.082555",
+        "goal_set_id": "ddaa91d1",
+        "goal_set_name": "Director of product",
+        "goal_set_snapshot": [
+            {
+                "id": "goal_1",
+                "label": "product",
+                "description": "test",
+                "auto_inferred": false
+            }
+        ],
+        "resume_id": "Yash_V_2_revised_20260520_204033.pdf",
+        "resume_snapshot_hash": "5031108ea128",
+        "scorecard": {
+            "scores": [
+                {
+                    "goal_id": "goal_1",
+                    "dimension": "Technical depth in autonomous systems",
+                    "score": 9.0,
+                    "remark": "Your experience leading the development of a card recommendation model for autonomous vehicle usage demonstrates technical depth in autonomous systems."
+                },
+                {
+                    "goal_id": "goal_1",
+                    "dimension": "Product sensibility",
+                    "score": 8.0,
+                    "remark": "Your track record of building and launching multiple products across various industries showcases product sensibility."
+                },
+                {
+                    "goal_id": "goal_1",
+                    "dimension": "Business acumen",
+                    "score": 8.0,
+                    "remark": "Your success in driving revenue growth for Kelp Global and improving digital penetration at Axis Bank demonstrates business acumen."
+                },
+                {
+                    "goal_id": "goal_1",
+                    "dimension": "Cross-functional leadership",
+                    "score": 9.0,
+                    "remark": "Your experience leading cross-functional teams at Contify and Axis Bank showcases your ability to lead effectively across multiple departments."
+                },
+                {
+                    "goal_id": "goal_1",
+                    "dimension": "Customer-centric product deployment understanding",
+                    "score": 8.0,
+                    "remark": "Your focus on improving user engagement and operational efficiency in your roles demonstrates an understanding of customer needs."
+                }
+            ],
+            "overall_fit": 7.9,
+            "verdict": "apply",
+            "summary": "Your extensive experience in product development, cross-functional leadership, and business acumen make you a strong fit for the Group Product Manager role at Kodiak. However, your lack of specific autonomous trucking or AI systems experience may be a concern.",
+            "gaps": [
+                {
+                    "type": "Domain Gap",
+                    "details": "The JD requires technical depth in autonomous systems specifically for Level 4 autonomous trucking solutions.",
+                    "criticality": "High"
+                }
+            ]
+        },
+        "verdict": "apply",
+        "overall_fit": 7.9,
+        "status": "pending",
+        "changes_generated": false,
+        "jd_title": "Group Product Manager",
+        "company": "Kodiak",
+        "url": null,
+        "suggestions": null
+    },
+    {
+        "jd_id": "6e6c4c31",
+        "analyzed_at": "2026-05-21T14:46:45.620670",
+        "goal_set_id": "25f36dfa",
+        "goal_set_name": "International Roles",
+        "goal_set_snapshot": [
+            {
+                "id": "goal_d_0",
+                "label": "Director-level Product Leader in AI-driven Transformations",
+                "description": "Leading AI transformations across B2B SaaS, FinTech, and enterprise analytics.",
+                "auto_inferred": true
+            },
+            {
+                "id": "goal_d_1",
+                "label": "Product Management at Contify",
+                "description": "Current role leading a cross-functional team in a competitive intelligence platform with $3M ARR, focusing on GenAI, Newsfeed, Dashboards, APIs, and Enterprise Integrations.",
+                "auto_inferred": true
+            },
+            {
+                "id": "goal_d_2",
+                "label": "Leading Product Development in FinTech",
+                "description": "Led the launch of Kelp Global, a fin-tech startup offering B2B SaaS that streamlines the private equity investment lifecycle.",
+                "auto_inferred": true
+            },
+            {
+                "id": "goal_d_3",
+                "label": "AI-driven Analytics for Marketing Campaigns",
+                "description": "Specialized in enhancing marketing campaigns performance for banks, focusing on personalized recommendations and multi-class classification models.",
+                "auto_inferred": true
+            },
+            {
+                "id": "goal_d_4",
+                "label": "Card Analytics and Marketing Strategies",
+                "description": "Focused on analytics for card marketing strategies to boost engagement at Axis Bank, driving increases in cross-selling and credit limit approvals.",
+                "auto_inferred": true
+            },
+            {
+                "id": "goal_d_5",
+                "label": "Marketing Analytics and Campaign Performance",
+                "description": "Designed marketing campaigns for insurance and retail liabilities at Axis Bank, improving conversions through channels like Email, SMS, and Call center.",
+                "auto_inferred": true
+            }
+        ],
+        "resume_id": "Yash_V_2_revised_20260520_204033_revised_20260521_143454.pdf",
+        "resume_snapshot_hash": "6d45dc2e4e48",
+        "scorecard": {
+            "scores": [
+                {
+                    "goal_id": "goal_d_0",
+                    "dimension": "Technical depth in autonomous systems",
+                    "score": 6.0,
+                    "remark": "Your experience leading AI-driven transformations across various industries doesn't specifically mention autonomous systems."
+                },
+                {
+                    "goal_id": "goal_d_0",
+                    "dimension": "Product sensibility",
+                    "score": 8.0,
+                    "remark": "Your track record of translating complex AI capabilities into intuitive enterprise products demonstrates product sensibility."
+                },
+                {
+                    "goal_id": "goal_d_0",
+                    "dimension": "Business acumen",
+                    "score": 8.0,
+                    "remark": "Your leadership roles at multiple companies and driving business development indicate strong business acumen."
+                },
+                {
+                    "goal_id": "goal_d_0",
+                    "dimension": "Cross-functional leadership",
+                    "score": 9.0,
+                    "remark": "Leading cross-functional teams at various companies demonstrates your ability to lead across functions."
+                },
+                {
+                    "goal_id": "goal_d_0",
+                    "dimension": "Customer-centric product deployment understanding",
+                    "score": 8.0,
+                    "remark": "Your focus on user engagement and customer relationships in several roles demonstrates a customer-centric approach."
+                },
+                {
+                    "goal_id": "goal_d_1",
+                    "dimension": "AI transformations at Contify",
+                    "score": 9.0,
+                    "remark": "Your current role leading AI transformations at Contify directly matches the JD's requirement for leading Level 4 autonomous trucking solutions."
+                },
+                {
+                    "goal_id": "goal_d_1",
+                    "dimension": "Cross-functional team management",
+                    "score": 9.0,
+                    "remark": "Your experience managing cross-functional teams in various roles demonstrates your ability to manage a diverse team."
+                },
+                {
+                    "goal_id": "goal_d_2",
+                    "dimension": "Launching Kelp Global",
+                    "score": 7.0,
+                    "remark": "Your leadership role in launching Kelp Global doesn't directly relate to autonomous trucking solutions."
+                },
+                {
+                    "goal_id": "goal_d_2",
+                    "dimension": "B2B SaaS experience",
+                    "score": 9.0,
+                    "remark": "Your experience in B2B SaaS industries directly matches the JD's requirement for Level 4 autonomous trucking solutions across customer applications."
+                },
+                {
+                    "goal_id": "goal_d_3",
+                    "dimension": "AI-driven Analytics for Marketing Campaigns",
+                    "score": 8.0,
+                    "remark": "Your experience designing marketing campaigns and enhancing performance with AI directly matches the JD's requirement."
+                },
+                {
+                    "goal_id": "goal_d_3",
+                    "dimension": "Multi-class classification models",
+                    "score": 6.0,
+                    "remark": "Your resume doesn't specifically mention multi-class classification models."
+                },
+                {
+                    "goal_id": "goal_d_4",
+                    "dimension": "Card Analytics and Marketing Strategies",
+                    "score": 9.0,
+                    "remark": "Your experience focusing on analytics for card marketing strategies directly matches the JD's requirement."
+                },
+                {
+                    "goal_id": "goal_d_5",
+                    "dimension": "Marketing Analytics and Campaign Performance",
+                    "score": 9.0,
+                    "remark": "Your experience designing marketing campaigns and improving performance directly matches the JD's requirement."
+                }
+            ],
+            "overall_fit": 7.2,
+            "verdict": "borderline",
+            "summary": "You have a good fit for the Group Product Manager position at Kodiak due to your experience in AI-driven transformations and marketing analytics. However, you lack specific experience in autonomous systems and multi-class classification models which are critical requirements for this role. In the interview, prepare to explain how you can quickly learn about autonomous trucking solutions and develop expertise in these areas.",
+            "gaps": [
+                {
+                    "type": "Skills Gap",
+                    "details": "Lack of experience with autonomous systems and multi-class classification models.",
+                    "criticality": "High"
+                }
+            ]
+        },
+        "verdict": "borderline",
+        "overall_fit": 7.2,
+        "status": "pending",
+        "changes_generated": false,
+        "jd_title": "Group Product Manager",
+        "company": "Kodiak",
+        "url": null,
+        "suggestions": null
+    },
+    {
+        "jd_id": "fdcb5042",
+        "analyzed_at": "2026-05-21T14:56:44.585433",
+        "goal_set_id": "25f36dfa",
+        "goal_set_name": "International Roles",
+        "goal_set_snapshot": [
+            {
+                "id": "goal_d_0",
+                "label": "Director-level Product Leader in AI-driven Transformations",
+                "description": "Leading AI transformations across B2B SaaS, FinTech, and enterprise analytics.",
+                "auto_inferred": true
+            },
+            {
+                "id": "goal_d_1",
+                "label": "Product Management at Contify",
+                "description": "Current role leading a cross-functional team in a competitive intelligence platform with $3M ARR, focusing on GenAI, Newsfeed, Dashboards, APIs, and Enterprise Integrations.",
+                "auto_inferred": true
+            },
+            {
+                "id": "goal_d_2",
+                "label": "Leading Product Development in FinTech",
+                "description": "Led the launch of Kelp Global, a fin-tech startup offering B2B SaaS that streamlines the private equity investment lifecycle.",
+                "auto_inferred": true
+            },
+            {
+                "id": "goal_d_3",
+                "label": "AI-driven Analytics for Marketing Campaigns",
+                "description": "Specialized in enhancing marketing campaigns performance for banks, focusing on personalized recommendations and multi-class classification models.",
+                "auto_inferred": true
+            },
+            {
+                "id": "goal_d_4",
+                "label": "Card Analytics and Marketing Strategies",
+                "description": "Focused on analytics for card marketing strategies to boost engagement at Axis Bank, driving increases in cross-selling and credit limit approvals.",
+                "auto_inferred": true
+            },
+            {
+                "id": "goal_d_5",
+                "label": "Marketing Analytics and Campaign Performance",
+                "description": "Designed marketing campaigns for insurance and retail liabilities at Axis Bank, improving conversions through channels like Email, SMS, and Call center.",
+                "auto_inferred": true
+            }
+        ],
+        "resume_id": "Yash_V_2_revised_20260520_204033_revised_20260521_143454_revised_20260521_144921.pdf",
+        "resume_snapshot_hash": "5054fe840bed",
+        "scorecard": {
+            "scores": [
+                {
+                    "goal_id": "goal_d_0",
+                    "dimension": "Technical depth in autonomous systems",
+                    "score": 6.0,
+                    "remark": "Your experience in AI-driven analytics and personalized recommendations (Habitual.AI) demonstrates technical knowledge but not directly related to autonomous systems."
+                },
+                {
+                    "goal_id": "goal_d_0",
+                    "dimension": "Product sensibility",
+                    "score": 8.0,
+                    "remark": "Your success in leading product launches and managing teams shows strong product sensibility."
+                },
+                {
+                    "goal_id": "goal_d_0",
+                    "dimension": "Business acumen",
+                    "score": 7.0,
+                    "remark": "Your work in driving strategic outcomes and aligning product investments with business goals demonstrates business acumen."
+                },
+                {
+                    "goal_id": "goal_d_0",
+                    "dimension": "Cross-functional leadership",
+                    "score": 9.0,
+                    "remark": "Your experience leading cross-functional teams in multiple roles demonstrates strong cross-functional leadership."
+                },
+                {
+                    "goal_id": "goal_d_0",
+                    "dimension": "Customer-centric product deployment",
+                    "score": 8.0,
+                    "remark": "Your focus on user engagement and operational efficiency show commitment to customer-centric product deployment."
+                },
+                {
+                    "goal_id": "goal_d_1",
+                    "dimension": "Director-level Product Leader in AI-driven Transformations",
+                    "score": 9.0,
+                    "remark": "Your current role leading a cross-functional team at Contify aligns with the goal of being a Director-level Product Leader."
+                },
+                {
+                    "goal_id": "goal_d_2",
+                    "dimension": "Leading Product Development in FinTech",
+                    "score": 8.0,
+                    "remark": "Your leadership role at Kelp Global showcases your experience in leading product development in a fin-tech context."
+                },
+                {
+                    "goal_id": "goal_d_3",
+                    "dimension": "AI-driven Analytics for Marketing Campaigns",
+                    "score": 9.0,
+                    "remark": "Your focus on AI-driven analytics and personalized recommendations directly matches the JD's requirement."
+                },
+                {
+                    "goal_id": "goal_d_4",
+                    "dimension": "Card Analytics and Marketing Strategies",
+                    "score": 9.0,
+                    "remark": "Your work on card analytics and marketing strategies at Axis Bank directly matches the JD's requirement."
+                }
+            ],
+            "overall_fit": 7.8,
+            "verdict": "apply",
+            "summary": "The overall fit is good, with strong evidence of product sensibility, cross-functional leadership, and experience in AI-driven analytics for marketing campaigns. However, your background lacks technical depth in autonomous systems as required by the JD. Prepare to discuss your understanding and knowledge of autonomous trucking solutions during the interview. Additionally, emphasize your card recommendation model's success when addressing the JD's requirement for customer-centric product deployment.",
+            "gaps": [
+                {
+                    "type": "Skills Gap",
+                    "details": "The JD requires technical depth in autonomous systems, which is not directly demonstrated in your resume.",
+                    "criticality": "High"
+                }
+            ]
+        },
+        "verdict": "apply",
+        "overall_fit": 7.8,
+        "status": "pending",
+        "changes_generated": false,
+        "jd_title": "Group Product Manager",
+        "company": "Kodiak",
+        "url": null,
+        "suggestions": null
+    },
+    {
+        "jd_id": "7954aca5",
+        "analyzed_at": "2026-05-21T19:27:16.346299",
+        "goal_set_id": "25f36dfa",
+        "goal_set_name": "International Roles",
+        "goal_set_snapshot": [
+            {
+                "id": "goal_d_0",
+                "label": "Director-level Product Leader in AI-driven Transformations",
+                "description": "Leading AI transformations across B2B SaaS, FinTech, and enterprise analytics.",
+                "auto_inferred": true
+            },
+            {
+                "id": "goal_d_1",
+                "label": "Product Management at Contify",
+                "description": "Current role leading a cross-functional team in a competitive intelligence platform with $3M ARR, focusing on GenAI, Newsfeed, Dashboards, APIs, and Enterprise Integrations.",
+                "auto_inferred": true
+            },
+            {
+                "id": "goal_d_2",
+                "label": "Leading Product Development in FinTech",
+                "description": "Led the launch of Kelp Global, a fin-tech startup offering B2B SaaS that streamlines the private equity investment lifecycle.",
+                "auto_inferred": true
+            },
+            {
+                "id": "goal_d_3",
+                "label": "AI-driven Analytics for Marketing Campaigns",
+                "description": "Specialized in enhancing marketing campaigns performance for banks, focusing on personalized recommendations and multi-class classification models.",
+                "auto_inferred": true
+            },
+            {
+                "id": "goal_d_4",
+                "label": "Card Analytics and Marketing Strategies",
+                "description": "Focused on analytics for card marketing strategies to boost engagement at Axis Bank, driving increases in cross-selling and credit limit approvals.",
+                "auto_inferred": true
+            },
+            {
+                "id": "goal_d_5",
+                "label": "Marketing Analytics and Campaign Performance",
+                "description": "Designed marketing campaigns for insurance and retail liabilities at Axis Bank, improving conversions through channels like Email, SMS, and Call center.",
+                "auto_inferred": true
+            }
+        ],
+        "resume_id": "Yash_V_2_revised_20260520_204033_revised_20260521_143454_revised_20260521_144921.pdf",
+        "resume_snapshot_hash": "5054fe840bed",
+        "scorecard": {
+            "scores": [
+                {
+                    "goal_id": "goal_d_0",
+                    "dimension": "Experience Gap",
+                    "score": 6.0,
+                    "remark": "Your experience leading AI transformations is mentioned in your resume but lacks depth and specific examples that directly match the JD's requirement for a full-cycle recruiting focus."
+                },
+                {
+                    "goal_id": "goal_d_0",
+                    "dimension": "Domain Gap",
+                    "score": 7.0,
+                    "remark": "Your experience in AI transformations aligns with the JD's requirement of partnering with senior leaders to shape org strategy."
+                },
+                {
+                    "goal_id": "goal_d_0",
+                    "dimension": "Seniority Gap",
+                    "score": 6.0,
+                    "remark": "While you have been a Director-level Product Leader in AI-driven Transformations, the JD is looking for a Recruiting Manager — this might be a transition in focus."
+                },
+                {
+                    "goal_id": "goal_d_1",
+                    "dimension": "Experience Gap",
+                    "score": 8.5,
+                    "remark": "Your current role leading a cross-functional team in a competitive intelligence platform directly matches the JD's requirement for experience partnering with senior leaders."
+                },
+                {
+                    "goal_id": "goal_d_1",
+                    "dimension": "Seniority Gap",
+                    "score": 6.0,
+                    "remark": "The JD is looking for a Recruiting Manager while you are currently serving as a Director, which might raise questions about your interest in a role with potentially less responsibility."
+                },
+                {
+                    "goal_id": "goal_d_2",
+                    "dimension": "Experience Gap",
+                    "score": 9.0,
+                    "remark": "Your experience leading the launch of Kelp Global directly matches the JD's requirement for a track record of hiring across levels."
+                },
+                {
+                    "goal_id": "goal_d_3",
+                    "dimension": "Skills Gap",
+                    "score": 6.0,
+                    "remark": "Your skills section mentions multi-class classification models, but no specific projects demonstrate depth in this area — the JD requires strong data fluency."
+                },
+                {
+                    "goal_id": "goal_d_4",
+                    "dimension": "Experience Gap",
+                    "score": 8.5,
+                    "remark": "Your experience with analytics for card marketing strategies directly matches the JD's requirement for experience partnering with senior leaders to shape org strategy."
+                },
+                {
+                    "goal_id": "goal_d_4",
+                    "dimension": "Seniority Gap",
+                    "score": 6.0,
+                    "remark": "The JD is looking for a Recruiting Manager while you have been a Director in the past, which might raise questions about your interest in a role with potentially less responsibility."
+                }
+            ],
+            "overall_fit": 7.2,
+            "verdict": "borderline",
+            "summary": "Your background aligns well with the JD's requirements for experience partnering with senior leaders and a track record of hiring across levels. However, your lack of experience in full-cycle recruiting and strong data fluency might raise some concerns for this specific role. Your strongest proof point is your success in leading the launch of Kelp Global. A potential gap that may hurt your chances for this JD is your lack of focus on full-cycle recruiting and strong data fluency. During interviews, be prepared to discuss your experience with full-cycle recruiting and your ability to use pipeline metrics to drive conversations and influence decisions.",
+            "gaps": [
+                {
+                    "type": "Skills Gap",
+                    "details": "Strong data fluency required — you only mention multi-class classification models in your skills section.",
+                    "criticality": "High"
+                }
+            ]
+        },
+        "verdict": "borderline",
+        "overall_fit": 7.2,
+        "status": "pending",
+        "changes_generated": false,
+        "jd_title": "Recruiting Manager - Product",
+        "company": "Duolingo",
+        "url": null,
+        "suggestions": null
+    },
+    {
+        "jd_id": "81a08664",
+        "analyzed_at": "2026-05-22T18:49:01.816159",
+        "goal_set_id": "25f36dfa",
+        "goal_set_name": "International Roles",
+        "goal_set_snapshot": [
+            {
+                "id": "goal_d_0",
+                "label": "Director-level Product Leader in AI-driven Transformations",
+                "description": "Leading AI transformations across B2B SaaS, FinTech, and enterprise analytics.",
+                "auto_inferred": true
+            },
+            {
+                "id": "goal_d_1",
+                "label": "Product Management at Contify",
+                "description": "Current role leading a cross-functional team in a competitive intelligence platform with $3M ARR, focusing on GenAI, Newsfeed, Dashboards, APIs, and Enterprise Integrations.",
+                "auto_inferred": true
+            },
+            {
+                "id": "goal_d_2",
+                "label": "Leading Product Development in FinTech",
+                "description": "Led the launch of Kelp Global, a fin-tech startup offering B2B SaaS that streamlines the private equity investment lifecycle.",
+                "auto_inferred": true
+            },
+            {
+                "id": "goal_d_3",
+                "label": "AI-driven Analytics for Marketing Campaigns",
+                "description": "Specialized in enhancing marketing campaigns performance for banks, focusing on personalized recommendations and multi-class classification models.",
+                "auto_inferred": true
+            },
+            {
+                "id": "goal_d_4",
+                "label": "Card Analytics and Marketing Strategies",
+                "description": "Focused on analytics for card marketing strategies to boost engagement at Axis Bank, driving increases in cross-selling and credit limit approvals.",
+                "auto_inferred": true
+            },
+            {
+                "id": "goal_d_5",
+                "label": "Marketing Analytics and Campaign Performance",
+                "description": "Designed marketing campaigns for insurance and retail liabilities at Axis Bank, improving conversions through channels like Email, SMS, and Call center.",
+                "auto_inferred": true
+            }
+        ],
+        "resume_id": "Yash_V_2_revised_20260520_204033_revised_20260521_143454_revised_20260521_144921.pdf",
+        "resume_snapshot_hash": "5054fe840bed",
+        "scorecard": {
+            "scores": [
+                {
+                    "goal_id": "goal_d_0",
+                    "dimension": "experience",
+                    "score": 8.0,
+                    "remark": "Leading AI transformations across B2B SaaS, FinTech, and enterprise analytics in the current role."
+                },
+                {
+                    "goal_id": "goal_d_0",
+                    "dimension": "seniority",
+                    "score": 9.0,
+                    "remark": "Current role as a Senior Software Engineer aligns with the goal of being a Director-level Product Leader in AI-driven Transformations."
+                },
+                {
+                    "goal_id": "goal_d_1",
+                    "dimension": "experience",
+                    "score": 8.0,
+                    "remark": "Leading a cross-functional team in a competitive intelligence platform with $3M ARR."
+                },
+                {
+                    "goal_id": "goal_d_1",
+                    "dimension": "seniority",
+                    "score": 9.0,
+                    "remark": "Current role as a Senior Software Engineer aligns with the goal of being a Product Manager at Contify."
+                },
+                {
+                    "goal_id": "goal_d_2",
+                    "dimension": "experience",
+                    "score": 8.0,
+                    "remark": "Led the launch of Kelp Global, a fin-tech startup offering B2B SaaS that streamlines the private equity investment lifecycle."
+                },
+                {
+                    "goal_id": "goal_d_3",
+                    "dimension": "skills",
+                    "score": 9.0,
+                    "remark": "Specialized in enhancing marketing campaigns performance for banks, focusing on personalized recommendations and multi-class classification models."
+                },
+                {
+                    "goal_id": "goal_d_4",
+                    "dimension": "experience",
+                    "score": 8.0,
+                    "remark": "Focused on analytics for card marketing strategies to boost engagement at Axis Bank."
+                },
+                {
+                    "goal_id": "goal_d_5",
+                    "dimension": "experience",
+                    "score": 8.0,
+                    "remark": "Designed marketing campaigns for insurance and retail liabilities at Axis Bank."
+                }
+            ],
+            "overall_fit": 7.9,
+            "verdict": "apply",
+            "summary": "Your resume demonstrates a strong fit with an overall score of 7.9, primarily due to your extensive experience leading AI transformations across various industries and your current role as a Senior Software Engineer. The most compelling evidence is your current position leading a cross-functional team in a competitive intelligence platform with $3M ARR (goal_d_1). However, there is a significant gap in the required familiarity with frontend technologies (HTML, JavaScript, Angular) supporting dashboard, visualization, and portal development. You should be prepared to discuss your ability to work on frontend development during an interview. Additionally, there's a minor skills gap in building scalable data analysis workflows, inventory mapping systems, and production monitoring solutions (goal_d_3).",
+            "gaps": [
+                {
+                    "type": "Tooling Gap",
+                    "details": "Lack of demonstrated experience in building frontend technologies for dashboard, visualization, and portal development.",
+                    "criticality": "High"
+                },
+                {
+                    "type": "Skills Gap",
+                    "details": "No direct evidence of building scalable data analysis workflows, inventory mapping systems, and production monitoring solutions.",
+                    "criticality": "Medium"
+                }
+            ]
+        },
+        "verdict": "apply",
+        "overall_fit": 7.9,
+        "status": "pending",
+        "changes_generated": false,
+        "jd_title": "Senior Software Engineer",
+        "company": "eBay",
+        "url": null,
+        "suggestions": null
+    },
+    {
+        "jd_id": "2af2fd6b",
+        "analyzed_at": "2026-05-23T16:47:58.576422",
+        "goal_set_id": "25f36dfa",
+        "goal_set_name": "International Roles",
+        "goal_set_snapshot": [
+            {
+                "id": "goal_d_0",
+                "label": "Director-level Product Leader in AI-driven Transformations",
+                "description": "Leading AI transformations across B2B SaaS, FinTech, and enterprise analytics.",
+                "auto_inferred": true
+            },
+            {
+                "id": "goal_d_1",
+                "label": "Product Management at Contify",
+                "description": "Current role leading a cross-functional team in a competitive intelligence platform with $3M ARR, focusing on GenAI, Newsfeed, Dashboards, APIs, and Enterprise Integrations.",
+                "auto_inferred": true
+            },
+            {
+                "id": "goal_d_2",
+                "label": "Leading Product Development in FinTech",
+                "description": "Led the launch of Kelp Global, a fin-tech startup offering B2B SaaS that streamlines the private equity investment lifecycle.",
+                "auto_inferred": true
+            },
+            {
+                "id": "goal_d_3",
+                "label": "AI-driven Analytics for Marketing Campaigns",
+                "description": "Specialized in enhancing marketing campaigns performance for banks, focusing on personalized recommendations and multi-class classification models.",
+                "auto_inferred": true
+            },
+            {
+                "id": "goal_d_4",
+                "label": "Card Analytics and Marketing Strategies",
+                "description": "Focused on analytics for card marketing strategies to boost engagement at Axis Bank, driving increases in cross-selling and credit limit approvals.",
+                "auto_inferred": true
+            },
+            {
+                "id": "goal_d_5",
+                "label": "Marketing Analytics and Campaign Performance",
+                "description": "Designed marketing campaigns for insurance and retail liabilities at Axis Bank, improving conversions through channels like Email, SMS, and Call center.",
+                "auto_inferred": true
+            }
+        ],
+        "resume_id": "Yash_V_2_revised_20260520_204033_revised_20260521_143454_revised_20260521_144921.pdf",
+        "resume_snapshot_hash": "5054fe840bed",
+        "scorecard": {
+            "scores": [
+                {
+                    "goal_id": "goal_d_0",
+                    "dimension": "AI-driven Transformations",
+                    "score": 8.0,
+                    "remark": "Your current role leading AI transformations across B2B SaaS, FinTech, and enterprise analytics directly matches the JD's requirement for software development in a company."
+                },
+                {
+                    "goal_id": "goal_d_0",
+                    "dimension": "Leadership",
+                    "score": 8.0,
+                    "remark": "Your experience leading teams at Contify and Kelp Global demonstrates your ability to handle leadership responsibilities as per the JD."
+                },
+                {
+                    "goal_id": "goal_d_1",
+                    "dimension": "Product Management at Contify",
+                    "score": 9.0,
+                    "remark": "Your current role and achievements in Contify directly align with the JD's requirement for being a Product Manager."
+                },
+                {
+                    "goal_id": "goal_d_2",
+                    "dimension": "FinTech",
+                    "score": 6.0,
+                    "remark": "While you have experience in FinTech from Kelp Global, the JD mentions a specific focus on software development, and your role was more product-oriented."
+                },
+                {
+                    "goal_id": "goal_d_3",
+                    "dimension": "AI-driven Analytics for Marketing Campaigns",
+                    "score": 8.0,
+                    "remark": "Your work on AI-powered card recommendation models at Axis Bank demonstrates your skills in AI-driven analytics."
+                },
+                {
+                    "goal_id": "goal_d_4",
+                    "dimension": "Card Analytics and Marketing Strategies",
+                    "score": 8.0,
+                    "remark": "Your role focusing on analytics for card marketing strategies at Axis Bank matches the JD's requirement for marketing strategies."
+                }
+            ],
+            "overall_fit": 7.5,
+            "verdict": "apply",
+            "summary": "Overall, your resume shows a strong fit for the Software Engineer position due to your experience in AI-driven transformations and product management, as well as marketing strategies. However, you have less direct experience with software development specifically, which may be an area of concern during the interview process.",
+            "gaps": [
+                {
+                    "type": "Experience Gap",
+                    "details": "The JD mentions a specific focus on software development, while your background is more product-oriented.",
+                    "criticality": "High"
+                }
+            ]
+        },
+        "verdict": "apply",
+        "overall_fit": 7.5,
+        "status": "pending",
+        "changes_generated": false,
+        "jd_title": "Software Engineer",
+        "company": "Test Company",
+        "url": null,
+        "suggestions": null
+    },
+    {
+        "jd_id": "17dd2cf2",
+        "analyzed_at": "2026-05-23T17:48:01.987222",
+        "goal_set_id": "25f36dfa",
+        "goal_set_name": "International Roles",
+        "goal_set_snapshot": [
+            {
+                "id": "goal_d_0",
+                "label": "Director-level Product Leader in AI-driven Transformations",
+                "description": "Leading AI transformations across B2B SaaS, FinTech, and enterprise analytics.",
+                "auto_inferred": true
+            },
+            {
+                "id": "goal_d_1",
+                "label": "Product Management at Contify",
+                "description": "Current role leading a cross-functional team in a competitive intelligence platform with $3M ARR, focusing on GenAI, Newsfeed, Dashboards, APIs, and Enterprise Integrations.",
+                "auto_inferred": true
+            },
+            {
+                "id": "goal_d_2",
+                "label": "Leading Product Development in FinTech",
+                "description": "Led the launch of Kelp Global, a fin-tech startup offering B2B SaaS that streamlines the private equity investment lifecycle.",
+                "auto_inferred": true
+            },
+            {
+                "id": "goal_d_3",
+                "label": "AI-driven Analytics for Marketing Campaigns",
+                "description": "Specialized in enhancing marketing campaigns performance for banks, focusing on personalized recommendations and multi-class classification models.",
+                "auto_inferred": true
+            },
+            {
+                "id": "goal_d_4",
+                "label": "Card Analytics and Marketing Strategies",
+                "description": "Focused on analytics for card marketing strategies to boost engagement at Axis Bank, driving increases in cross-selling and credit limit approvals.",
+                "auto_inferred": true
+            },
+            {
+                "id": "goal_d_5",
+                "label": "Marketing Analytics and Campaign Performance",
+                "description": "Designed marketing campaigns for insurance and retail liabilities at Axis Bank, improving conversions through channels like Email, SMS, and Call center.",
+                "auto_inferred": true
+            }
+        ],
+        "resume_id": "Yash_V_2_revised_20260520_204033_revised_20260521_143454_revised_20260521_144921.pdf",
+        "resume_snapshot_hash": "5054fe840bed",
+        "scorecard": {
+            "scores": [
+                {
+                    "goal_id": "goal_d_0",
+                    "dimension": "Leading AI transformations across B2B SaaS, FinTech, and enterprise analytics.",
+                    "score": 7.0,
+                    "remark": "Your extensive experience leading AI-driven transformations at Contify in a competitive intelligence platform is relevant, but the JD mentions no specific focus on B2B SaaS, FinTech, or enterprise analytics."
+                },
+                {
+                    "goal_id": "goal_d_1",
+                    "dimension": "Current role leading a cross-functional team in a competitive intelligence platform with $3M ARR, focusing on GenAI, Newsfeed, Dashboards, APIs, and Enterprise Integrations.",
+                    "score": 9.0,
+                    "remark": "Your current role at Contify directly matches the JD's requirement for Data Entry/Customer Service."
+                },
+                {
+                    "goal_id": "goal_d_2",
+                    "dimension": "Led the launch of Kelp Global, a fin-tech startup offering B2B SaaS that streamlines the private equity investment lifecycle.",
+                    "score": 8.0,
+                    "remark": "Your leadership in the launch of Kelp Global demonstrates expertise in FinTech and B2B SaaS, but the JD does not mention a requirement for startup experience."
+                },
+                {
+                    "goal_id": "goal_d_3",
+                    "dimension": "Specialized in enhancing marketing campaigns performance for banks, focusing on personalized recommendations and multi-class classification models.",
+                    "score": 9.0,
+                    "remark": "Your focus on AI-driven Analytics for Marketing Campaigns is a strong match with the JD's requirement for customer service."
+                },
+                {
+                    "goal_id": "goal_d_4",
+                    "dimension": "Focused on analytics for card marketing strategies to boost engagement at Axis Bank, driving increases in cross-selling and credit limit approvals.",
+                    "score": 7.0,
+                    "remark": "Your experience with Card Analytics and Marketing Strategies demonstrates relevant skills, but the JD does not mention a specific requirement for card marketing."
+                },
+                {
+                    "goal_id": "goal_d_5",
+                    "dimension": "Designed marketing campaigns for insurance and retail liabilities at Axis Bank, improving conversions through channels like Email, SMS, and Call center.",
+                    "score": 7.0,
+                    "remark": "Your work on Marketing Analytics and Campaign Performance shows relevant experience, but the JD does not mention a requirement for marketing campaigns for insurance and retail liabilities."
+                }
+            ],
+            "overall_fit": 7.4,
+            "verdict": "borderline",
+            "summary": "Your extensive customer service background at Contify makes you a strong fit for the Data Entry/Customer Service position at Milani Plumbing Heating & Air Conditioning Ltd., with one key gap in specialized card marketing experience. Your strongest proof point is your current role leading a cross-functional team in a competitive intelligence platform. The JD's requirement for someone to schedule service appointments may present an interview risk, as it focuses on customer service rather than technical skills. A potential gap is the lack of specific experience in card marketing strategies.",
+            "gaps": [
+                {
+                    "type": "Experience Gap",
+                    "details": "Lack of specialized experience in card marketing strategies.",
+                    "criticality": "High"
+                }
+            ]
+        },
+        "verdict": "borderline",
+        "overall_fit": 7.4,
+        "status": "pending",
+        "changes_generated": false,
+        "jd_title": "Data Entry/Customer Service",
+        "company": "Milani Plumbing Heating & Air Conditioning Ltd.",
         "url": null,
         "suggestions": null
     }
