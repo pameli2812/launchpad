@@ -1,35 +1,15 @@
 {
-    "active_goal_set_id": "ddaa91d1",
+    "active_goal_set_id": "25f36dfa",
     "goal_sets": [
         {
             "id": "ddaa91d1",
             "name": "Director of product",
             "created_at": "2026-05-17T12:00:05.740088",
-            "is_active": true,
-            "goals": [
-                {
-                    "id": "goal_1",
-                    "label": "product",
-                    "description": "test",
-                    "auto_inferred": false
-                }
-            ]
-        },
-        {
-            "id": "c14ef3e6",
-            "name": "Director of product",
-            "created_at": "2026-05-17T12:00:39.777824",
             "is_active": false,
             "goals": [
                 {
                     "id": "goal_1",
                     "label": "product",
-                    "description": "test",
-                    "auto_inferred": false
-                },
-                {
-                    "id": "goal_2",
-                    "label": "senior product manager",
                     "description": "test",
                     "auto_inferred": false
                 }
@@ -39,7 +19,7 @@
             "id": "25f36dfa",
             "name": "International Roles",
             "created_at": "2026-05-17T19:27:48.633369",
-            "is_active": false,
+            "is_active": true,
             "goals": [
                 {
                     "id": "goal_d_0",
@@ -75,26 +55,6 @@
                     "id": "goal_d_5",
                     "label": "Marketing Analytics and Campaign Performance",
                     "description": "Designed marketing campaigns for insurance and retail liabilities at Axis Bank, improving conversions through channels like Email, SMS, and Call center.",
-                    "auto_inferred": true
-                }
-            ]
-        },
-        {
-            "id": "312fbed6",
-            "name": "Test",
-            "created_at": "2026-05-19T12:06:20.286887",
-            "is_active": false,
-            "goals": [
-                {
-                    "id": "goal_ai_a87298cd",
-                    "label": "Senior/Leadership Role",
-                    "description": "Progress to senior individual contributor or management role",
-                    "auto_inferred": true
-                },
-                {
-                    "id": "goal_ai_68fc88ab",
-                    "label": "Competitive Compensation",
-                    "description": "Achieve market-competitive salary and benefits",
                     "auto_inferred": true
                 }
             ]

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ATS Debug</title>
+    <style>
+        body { font-family: monospace; padding: 20px; background: #f5f5f5; }
+        .section { background: white; padding: 20px; margin: 20px 0; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        pre { background: #f8f8f8; padding: 10px; border-radius: 4px; overflow-x: auto; }
+        button { background: #3b82f6; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-size: 14px; }
+        button:hover { background: #2563eb; }
+        .error { color: #ef4444; background: #fee2e2; padding: 10px; border-radius: 4px; }
+        .success { color: #10b981; background: #d1fae5; padding: 10px; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <h1>🔧 ATS Debug Tool</h1>
+    
+    <div class="section">
+        <h2>Step 1: Check Auth Token</h2>
+        <button onclick="checkToken()">Check Token</button>
+        <div id="token-result"></div>
+    </div>
+    
+    <div class="section">
+        <h2>Step 2: Check Resumes in Database</h2>
+        <button onclick="checkResumes()">Check Resumes</button>
+        <div id="resumes-result"></div>
+    </div>
+    
+    <div class="section">
+        <h2>Step 3: Test ATS Analyze</h2>
+        <input type="text" id="resume-name" placeholder="Resume_Yash_1.pdf" style="padding: 8px; width: 300px; margin-right: 10px;">
+        <button onclick="testAnalyze()">Test Analyze</button>
+        <div id="analyze-result"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8000/api';
+        
+        function getToken() {
+            return localStorage.getItem('lp_access_token');
+        }
+        
+        async function checkToken() {
+            const token = getToken();
+            const result = document.getElementById('token-result');
+            
+            if (!token) {
+                result.innerHTML = '<div class="error">❌ No token found in localStorage. Please login first at <a href="http://localhost:3000">http://localhost:3000</a></div>';
+                return;
+            }
+            
+            try {
+                // Decode JWT to see user info
+                const parts = token.split('.');
+                const payload = JSON.parse(atob(parts[1]));
+                result.innerHTML = `
+                    <div class="success">✅ Token found</div>
+                    <pre>${JSON.stringify(payload, null, 2)}</pre>
+                `;
+            } catch (e) {
+                result.innerHTML = `<div class="error">❌ Invalid token format: ${e.message}</div>`;
+            }
+        }
+        
+        async function checkResumes() {
+            const token = getToken();
+            const result = document.getElementById('resumes-result');
+            
+            if (!token) {
+                result.innerHTML = '<div class="error">❌ No token. Run Step 1 first.</div>';
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/ats/debug/resumes`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    result.innerHTML = `<div class="error">❌ Error ${response.status}: ${data.detail || JSON.stringify(data)}</div>`;
+                    return;
+                }
+                
+                result.innerHTML = `
+                    <div class="success">✅ Resumes found: ${data.count}</div>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+            } catch (e) {
+                result.innerHTML = `<div class="error">❌ Request failed: ${e.message}</div>`;
+            }
+        }
+        
+        async function testAnalyze() {
+            const token = getToken();
+            const resumeName = document.getElementById('resume-name').value || 'Resume_Yash_1.pdf';
+            const result = document.getElementById('analyze-result');
+            
+            if (!token) {
+                result.innerHTML = '<div class="error">❌ No token. Run Step 1 first.</div>';
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/ats/analyze`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        resume_id: resumeName,
+                        role: 'full_stack_engineer'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    result.innerHTML = `<div class="error">❌ Error ${response.status}: ${data.detail || JSON.stringify(data)}</div>`;
+                    return;
+                }
+                
+                result.innerHTML = `
+                    <div class="success">✅ Analysis succeeded!</div>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+            } catch (e) {
+                result.innerHTML = `<div class="error">❌ Request failed: ${e.message}</div>`;
+            }
+        }
+    </script>
+</body>
+</html>
